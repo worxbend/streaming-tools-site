@@ -797,31 +797,43 @@
     });
   }
 
+  var revealIO = null;
+
   function initReveal() {
-    var items = document.querySelectorAll(".reveal");
     if (!("IntersectionObserver" in window) || reduceMotion) {
       revealAll();
       return;
     }
-    var io;
     try {
-      io = makeRevealObserver();
+      revealIO = makeRevealObserver();
     } catch (e) {
       // Anything goes wrong setting up the effect: show the content.
       revealAll();
       return;
     }
+    revealScan();
 
-    Array.prototype.forEach.call(items, function (el, i) {
-      el.style.transitionDelay = Math.min(i % 6, 5) * 55 + "ms";
-      io.observe(el);
-    });
-
-    // Safety net: if nothing has been revealed shortly after load, the effect is
-    // not working for this browser — show everything rather than a blank page.
+    // Safety nets, in case the effect misbehaves in some browser: never leave
+    // content invisible that the reader can already see.
     setTimeout(function () {
-      if (!document.querySelector(".reveal.is-in")) revealAll();
+      if (!document.querySelector(".reveal.is-in")) return revealAll();
+      Array.prototype.forEach.call(document.querySelectorAll(".reveal:not(.is-in)"), function (el) {
+        var r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight && r.bottom > 0) el.classList.add("is-in");
+      });
     }, 2500);
+  }
+
+  // Observes any .reveal not already being watched. Must be called again after
+  // rendering new markup — tool cards are built after initReveal() runs.
+  function revealScan() {
+    if (!revealIO) { revealAll(); return; }
+    var fresh = document.querySelectorAll(".reveal:not([data-rv])");
+    Array.prototype.forEach.call(fresh, function (el, i) {
+      el.setAttribute("data-rv", "1");
+      el.style.transitionDelay = Math.min(i % 6, 5) * 55 + "ms";  // stagger per row
+      revealIO.observe(el);
+    });
   }
 
   function makeRevealObserver() {
@@ -942,4 +954,7 @@
   safe("counters", initCounters);
   safe("demo", startDemo);
   safe("background", startBackground);
+
+  // Pick up .reveal elements rendered by the builders above.
+  safe("reveal-rescan", revealScan);
 })();
