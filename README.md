@@ -81,32 +81,45 @@ out of the published site.
 One-time setup: **Settings → Pages → Build and deployment → Source: GitHub
 Actions**. No branch selection is needed — the workflow pushes the artifact.
 
-### Custom domain
+## Where the site is served
 
-`CNAME` contains `obs.worxbend.com` and is copied into the published artifact,
-so Pages picks the domain up on deploy.
+| URL | Host | Notes |
+| --- | ---- | ----- |
+| `https://obs.worxbend.com` | **Netlify** | canonical; DNS points here |
+| `https://worxbend.github.io/streaming-tools-site/` | GitHub Pages | mirror, deployed by the workflow |
 
-It lives at the repo root because Pages here is served from an Actions artifact
-whose root is the site root. `docs/CNAME` is only correct for the other Pages
-mode — *deploy from a branch* with the `/docs` folder as source.
+Both deploy from this repo and are independent of each other.
 
-DNS for a subdomain needs a `CNAME` record:
+### About the `CNAME` file — read before changing Pages settings
 
-```
-obs.worxbend.com.   CNAME   worxbend.github.io.
-```
+`CNAME` contains `obs.worxbend.com`, but **that domain is served by Netlify**, not
+by Pages. DNS resolves `obs.worxbend.com` → `streaming-tools.netlify.app`.
 
-Then tick **Enforce HTTPS** in Settings → Pages once the certificate is issued.
+The file is currently **inert**. Under the *GitHub Actions* Pages build type — what
+this repo uses — a `CNAME` file in the artifact does **not** configure the custom
+domain; that is only the behaviour of the *deploy from a branch* build type. The
+Pages API confirms the repo's `cname` is `null`, so Pages serves the
+`github.io` URL and simply publishes `/CNAME` as an ordinary static file.
 
-> A custom domain can be claimed by only one repository at a time. If another
-> `worxbend` repo currently serves `obs.worxbend.com`, remove it there first —
-> GitHub will otherwise reject the domain on this repo.
+> [!WARNING]
+> If Pages is ever switched to **deploy from a branch**, this file *would* claim
+> `obs.worxbend.com` for Pages. A domain can only be claimed by one host, so that
+> would collide with the live Netlify site. Delete `CNAME` before making that
+> switch, or move the domain deliberately (see below).
 
-### Serving both places at once
+It sits at the repo root rather than `docs/CNAME` because the Actions artifact
+root *is* the site root; `docs/CNAME` only applies to branch-deploys sourced from
+the `/docs` folder.
 
-Netlify and Pages can both deploy from this repo simultaneously; they are
-independent. The `CNAME` file is inert on Netlify (it is just a static file, and
-Netlify domains are configured in its own UI), so nothing conflicts.
+### If you ever want Pages to own the domain
+
+In this order, to minimise downtime:
+
+1. Remove the custom domain from the Netlify site.
+2. Repoint DNS: `obs.worxbend.com. CNAME worxbend.github.io.`
+3. Set it in **Settings → Pages → Custom domain** (or
+   `gh api -X PUT repos/worxbend/streaming-tools-site/pages -f cname=obs.worxbend.com`).
+4. Tick **Enforce HTTPS** once the certificate is issued.
 
 ## Editing content
 
