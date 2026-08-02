@@ -123,27 +123,68 @@ In this order, to minimise downtime:
 
 ## Install commands
 
-Each tool's detail panel shows a real install command with a copy button, next to
-its Website/GitHub links. They are stored per tool as `install` in `DATA`
-(`assets/app.js`) and were taken from each project's own README, then checked to
-confirm the URL actually serves a shell script:
+Real install commands with copy buttons appear in two places — each tool's card
+in **The toolkit**, and its detail panel under the map. Both render from the same
+`installs` array in `DATA` (`assets/app.js`) via one shared `installBlock()`
+builder, so they cannot drift apart. A tool may list more than one option.
+
+Commands were taken from each project's own README and then checked to confirm
+the URL actually serves what it claims:
 
 | Tool | Method | Source |
 | ---- | ------ | ------ |
 | `obsctl-rs` | `curl \| sh` | `releases/latest/download/install.sh` |
 | `obs-stats` | `curl \| sh` | `raw.githubusercontent.com/.../main/scripts/install.sh` |
 | `twi` | `curl \| sh` | `releases/latest/download/install.sh` |
-| `scenedeck` | Snap Store | strict-confinement snap, no installer script |
-| `obsctl` | from source | no installer script; release tarballs are version-stamped, so there is no stable `latest/download` URL |
+| `scenedeck` | Snap Store | strict-confinement snap |
+| `scenedeck` | GitHub release binary | for people who do not use snap |
+| `obsctl` | from source | no installer script published |
 
-Where a script is piped to a shell, the panel also links the raw script as *read
-it first* so it can be inspected before running. `obsctl` links its prebuilt
-static binaries instead.
+Every `curl` uses `-fsSL`. The `L` matters: the release-asset URLs answer `302`,
+so a command without `-L` pipes a redirect body into `sh` and silently does
+nothing.
+
+Two tools have no `latest/download` shortcut because their release assets are
+version-stamped (`scenedeck-0.1.21-linux-amd64`):
+
+- **scenedeck** resolves the current tag from the GitHub API first, then
+  downloads and `install -Dm755`s the binary. It also links the releases page for
+  the AppImage, flatpak and arm64 builds.
+- **obsctl** has no installer at all, so it shows the documented source build and
+  links its prebuilt static tarballs.
+
+Where a script is piped to a shell, the block links the raw script as *read it
+first* so it can be inspected before running.
 
 > [!NOTE]
 > These are copies of upstream instructions. If a tool changes how it is
 > installed, update `DATA[...].install` here too — nothing verifies it
 > automatically.
+
+## Page structure
+
+| Section | Built from |
+| ------- | ---------- |
+| Hero + stats band | markup; counters animate from `data-count` |
+| The idea | markup; 5-panel carousel auto-advances every 3.2s, pauses on hover |
+| The toolkit | rendered from `DATA` + `CARD_META` (per-card accent, blurb, features) |
+| The map + detail | rendered from `DATA` + `GEO` + `EDGES` |
+| In the terminal | `DEMO` transcript, typed character by character on a loop |
+| Quick start | markup; commands taken from the obsctl-rs README |
+| Why terminal-first, Questions | markup (`<details>` for the FAQ) |
+
+## Motion
+
+Everything is CSS transitions plus a little JS; there is no animation library.
+
+- Scroll-reveal, the scroll-progress bar, active-section nav highlighting,
+  back-to-top, stat counters, the typing demo and the background icosphere.
+- The reveal effect is gated behind a `has-js` class added by `app.js`, so with
+  scripting unavailable the content is simply visible rather than stuck at
+  `opacity: 0`.
+- `prefers-reduced-motion: reduce` turns all of it off: reveals resolve to
+  visible, counters jump to their final value, the terminal renders as a finished
+  transcript, and the carousel stops auto-advancing (its dots still work).
 
 ## Editing content
 

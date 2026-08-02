@@ -6,6 +6,9 @@
 
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  // Arms the reveal animation only when scripting is available.
+  document.documentElement.classList.add("has-js");
+
   /* ------------------------------------------------------------------ data */
 
   var DATA = {
@@ -16,7 +19,18 @@
       detailChips: ["Rust", "GTK4 + libadwaita", "Linux", "snap install scenedeck", "MIT"],
       connects: "workstation ──commands──▶ remote OBS ──telemetry──▶ back",
       // Published to the Snap Store under strict confinement; no curl installer.
-      install: { tag: "SNAP STORE", cmd: "sudo snap install scenedeck", inspect: null },
+      // Release assets are version-stamped, so the binary option resolves the
+      // latest tag first rather than using a latest/download URL.
+      installs: [
+        { tag: "SNAP STORE", cmd: "sudo snap install scenedeck" },
+        {
+          tag: "GITHUB RELEASE — BINARY",
+          cmd: "VER=$(curl -fsSL https://api.github.com/repos/worxbend/scenedeck/releases/latest | grep -m1 '\"tag_name\"' | cut -d'\"' -f4)\n" +
+               "curl -fsSL -o scenedeck \"https://github.com/worxbend/scenedeck/releases/download/$VER/scenedeck-${VER#v}-linux-amd64\"\n" +
+               "install -Dm755 scenedeck ~/.local/bin/scenedeck",
+          alt: { text: "all builds — AppImage, flatpak, arm64 ↗", href: "https://github.com/worxbend/scenedeck/releases/latest" }
+        }
+      ],
       site: "https://worxbend.github.io/scenedeck/", repo: "https://github.com/worxbend/scenedeck"
     },
     "obsctl-rs": {
@@ -25,11 +39,11 @@
       desc: "An OBS command center in one Rust binary. A local daemon owns the WebSocket link to the remote OBS; a keyboard-driven TUI shows live state; a proxy CLI answers in milliseconds — bind scene switches and mute toggles to any hotkey or script on your workstation.",
       detailChips: ["Rust", "Ratatui TUI", "single binary", "20 CLI commands", "JSON envelope", "29 themes", "MIT"],
       connects: "workstation ──commands──▶ remote OBS ──telemetry──▶ back",
-      install: {
+      installs: [{
         tag: "CURL | SH",
-        cmd: "curl --proto '=https' --tlsv1.2 -sSf https://github.com/worxbend/obsctl-rs/releases/latest/download/install.sh | sh",
+        cmd: "curl -fsSL https://github.com/worxbend/obsctl-rs/releases/latest/download/install.sh | sh",
         inspect: "https://github.com/worxbend/obsctl-rs/releases/latest/download/install.sh"
-      },
+      }],
       site: "https://worxbend.github.io/obsctl-rs/", repo: "https://github.com/worxbend/obsctl-rs"
     },
     obsctl: {
@@ -41,12 +55,11 @@
       // No install script upstream. Release tarballs are version-stamped, so
       // there is no stable latest/download URL — source build is the one
       // command that keeps working across releases.
-      install: {
+      installs: [{
         tag: "FROM SOURCE",
         cmd: "git clone https://github.com/worxbend/obsctl.git && cd obsctl && shards install && make release",
-        inspect: null,
         alt: { text: "prebuilt static binaries ↗", href: "https://github.com/worxbend/obsctl/releases" }
-      },
+      }],
       site: "https://worxbend.github.io/obsctl/", repo: "https://github.com/worxbend/obsctl"
     },
     "obs-stats": {
@@ -55,11 +68,11 @@
       desc: "A btop-style dashboard watching the remote OBS from a terminal pane. It keeps GPU, encoder and network frame loss apart — each has a different fix — and raises a banner plus desktop notification the moment frames start dropping, so you find out before your viewers do.",
       detailChips: ["Rust", "6 views", "desktop notifications", "24 themes", "Linux / macOS / Windows", "MIT"],
       connects: "workstation ──monitor──▶ remote OBS (read-only telemetry)",
-      install: {
+      installs: [{
         tag: "CURL | SH",
         cmd: "curl -fsSL https://raw.githubusercontent.com/worxbend/obs-stats/main/scripts/install.sh | sh",
         inspect: "https://raw.githubusercontent.com/worxbend/obs-stats/main/scripts/install.sh"
-      },
+      }],
       site: "https://worxbend.github.io/obs-stats/", repo: "https://github.com/worxbend/obs-stats"
     },
     twi: {
@@ -70,11 +83,11 @@
       connects: "workstation ──chat / IRC──▶ Twitch",
       // The README also documents a snap, but snapcraft.io/twi is not published
       // yet — curl-pipe is the only install path that currently works.
-      install: {
+      installs: [{
         tag: "CURL | SH",
-        cmd: "curl --proto '=https' --tlsv1.2 -sSf https://github.com/worxbend/twi/releases/latest/download/install.sh | sh",
+        cmd: "curl -fsSL https://github.com/worxbend/twi/releases/latest/download/install.sh | sh",
         inspect: "https://github.com/worxbend/twi/releases/latest/download/install.sh"
-      },
+      }],
       site: "https://worxbend.github.io/twi/", repo: "https://github.com/worxbend/twi"
     },
     obs: {
@@ -252,53 +265,79 @@
   var elSite     = document.getElementById("sel-site");
   var elRepo     = document.getElementById("sel-repo");
 
-  var elInstall     = document.getElementById("sel-install");
-  var elInstallTag  = document.getElementById("install-tag");
-  var elInstallCmd  = document.getElementById("install-cmd");
-  var elInstallInsp = document.getElementById("install-inspect");
-  var elInstallAlt  = document.getElementById("install-alt");
-  var elInstallCopy = document.getElementById("install-copy");
+  var elInstalls = document.getElementById("sel-installs");
+
+  // One install option -> one labelled command block. Shared by the detail
+  // panel and the tool cards so both stay in step.
+  function installBlock(opt) {
+    var wrap = document.createElement("div");
+    wrap.className = "install";
+
+    var head = document.createElement("div");
+    head.className = "install-head";
+
+    var tag = document.createElement("span");
+    tag.className = "install-tag";
+    tag.textContent = opt.tag;
+    head.appendChild(tag);
+
+    if (opt.inspect) {
+      var insp = document.createElement("a");
+      insp.className = "install-inspect";
+      insp.href = opt.inspect;
+      insp.rel = "noopener";
+      insp.textContent = "read it first ↗";
+      head.appendChild(insp);
+    }
+    if (opt.alt) {
+      var alt = document.createElement("a");
+      alt.className = "install-alt";
+      alt.href = opt.alt.href;
+      alt.rel = "noopener";
+      alt.textContent = opt.alt.text;
+      head.appendChild(alt);
+    }
+    wrap.appendChild(head);
+
+    var box = document.createElement("div");
+    box.className = "cmd-box";
+    var code = document.createElement("code");
+    code.textContent = opt.cmd;
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "copy-btn";
+    btn.textContent = "Copy";
+    box.appendChild(code);
+    box.appendChild(btn);
+    wrap.appendChild(box);
+
+    return wrap;
+  }
 
   function paintInstall(d) {
-    var ins = d.install;
-    if (!ins) {
-      elInstall.hidden = true;
-      return;
-    }
-    elInstall.hidden = false;
-    elInstallTag.textContent = ins.tag;
-    elInstallCmd.textContent = ins.cmd;
-
-    if (ins.inspect) {
-      elInstallInsp.href = ins.inspect;
-      elInstallInsp.hidden = false;
-    } else {
-      elInstallInsp.hidden = true;
-    }
-
-    if (ins.alt) {
-      elInstallAlt.href = ins.alt.href;
-      elInstallAlt.textContent = ins.alt.text;
-      elInstallAlt.hidden = false;
-    } else {
-      elInstallAlt.hidden = true;
-    }
-
-    resetCopyLabel();
+    elInstalls.textContent = "";
+    var opts = d.installs || [];
+    elInstalls.hidden = opts.length === 0;
+    opts.forEach(function (opt) { elInstalls.appendChild(installBlock(opt)); });
   }
 
-  var copyTimer = null;
-  function resetCopyLabel() {
-    if (copyTimer) { clearTimeout(copyTimer); copyTimer = null; }
-    elInstallCopy.textContent = "Copy";
-    elInstallCopy.classList.remove("ok");
+  /* ------------------------------------------------- copy (shared, delegated) */
+
+  var copyTimers = new WeakMap();
+
+  function resetCopyLabel(btn) {
+    var t = copyTimers.get(btn);
+    if (t) { clearTimeout(t); copyTimers.delete(btn); }
+    btn.textContent = "Copy";
+    btn.classList.remove("ok");
   }
 
-  function flashCopied(ok) {
-    elInstallCopy.textContent = ok ? "Copied ✓" : "Press ⌘/Ctrl+C";
-    elInstallCopy.classList.toggle("ok", ok);
-    if (copyTimer) clearTimeout(copyTimer);
-    copyTimer = setTimeout(resetCopyLabel, 1800);
+  function flashCopied(btn, ok) {
+    btn.textContent = ok ? "Copied ✓" : "Press ⌘/Ctrl+C";
+    btn.classList.toggle("ok", ok);
+    var prev = copyTimers.get(btn);
+    if (prev) clearTimeout(prev);
+    copyTimers.set(btn, setTimeout(function () { resetCopyLabel(btn); }, 1800));
   }
 
   function legacyCopy(text) {
@@ -315,16 +354,24 @@
     return ok;
   }
 
-  elInstallCopy.addEventListener("click", function () {
-    var text = elInstallCmd.textContent;
+  // One delegated listener covers the detail panel, the tool cards and the
+  // quick-start steps — including cards rendered after this runs.
+  document.addEventListener("click", function (ev) {
+    var btn = ev.target.closest && ev.target.closest(".copy-btn");
+    if (!btn) return;
+    var box = btn.closest(".cmd-box");
+    var code = box && box.querySelector("code");
+    if (!code) return;
+
+    var text = code.textContent;
     // navigator.clipboard needs a secure context; fall back when absent.
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard.writeText(text).then(
-        function () { flashCopied(true); },
-        function () { flashCopied(legacyCopy(text)); }
+        function () { flashCopied(btn, true); },
+        function () { flashCopied(btn, legacyCopy(text)); }
       );
     } else {
-      flashCopied(legacyCopy(text));
+      flashCopied(btn, legacyCopy(text));
     }
   });
 
@@ -537,13 +584,323 @@
     window.addEventListener("pagehide", function () { cancelAnimationFrame(raf); });
   }
 
+  /* ------------------------------------------------------------ tool cards */
+
+  // Card-only presentation data. Kept beside DATA rather than inside it so the
+  // design-sourced copy stays untouched.
+  var CARD_ORDER = ["scenedeck", "obsctl-rs", "obsctl", "obs-stats", "twi"];
+  var CARD_META = {
+    scenedeck: {
+      accent: "#b49af0",
+      short: "A native GTK4 control panel for the remote OBS — scenes, mixer, telemetry and diagnostics in one window.",
+      feats: ["Role-filtered scene switching", "Mixer reaches into nested scenes", "Doctor diagnostics built in"]
+    },
+    "obsctl-rs": {
+      accent: "#8ab0f0",
+      short: "One Rust binary that is a daemon, a TUI and a proxy CLI answering in milliseconds.",
+      feats: ["Daemon owns the WebSocket link", "Ratatui TUI + 20 CLI commands", "29 themes, systemd --user service"]
+    },
+    obsctl: {
+      accent: "#5fce93",
+      short: "The same control-room idea in Crystal, with a daemon that shrugs off OBS restarts.",
+      feats: ["Bounded reconnect backoff", "One JSON envelope per call", "Static musl builds, amd64 + arm64"]
+    },
+    "obs-stats": {
+      accent: "#e0b05c",
+      short: "A btop-style health dashboard that tells you which frames are dropping, and why.",
+      feats: ["GPU, encoder and network kept apart", "Desktop notification on first drop", "6 views, 24 themes"]
+    },
+    twi: {
+      accent: "#d98a8a",
+      short: "Twitch chat in a terminal pane — no browser tab, no Electron, no window stealing focus.",
+      feats: ["Reads and sends over Twitch IRC", "Sits beside obs-stats in a split", "Stays on your workstation"]
+    }
+  };
+
+  function buildToolCards() {
+    var host = document.getElementById("tool-grid");
+    if (!host) return;
+
+    CARD_ORDER.forEach(function (id) {
+      var d = DATA[id], meta = CARD_META[id];
+      if (!d || !meta) return;
+
+      var card = document.createElement("article");
+      card.className = "tool-card reveal";
+      card.style.setProperty("--accent", meta.accent);
+
+      var head = document.createElement("div");
+      head.className = "tool-card-head";
+      var h3 = document.createElement("h3");
+      h3.textContent = d.label;
+      var kind = document.createElement("span");
+      kind.className = "tool-card-kind";
+      kind.textContent = d.kind;
+      head.appendChild(h3);
+      head.appendChild(kind);
+      card.appendChild(head);
+
+      var p = document.createElement("p");
+      p.className = "tool-card-desc";
+      p.textContent = meta.short;
+      card.appendChild(p);
+
+      var ul = document.createElement("ul");
+      ul.className = "tool-feats";
+      meta.feats.forEach(function (f) {
+        var li = document.createElement("li");
+        li.textContent = f;
+        ul.appendChild(li);
+      });
+      card.appendChild(ul);
+
+      (d.installs || []).forEach(function (opt) {
+        card.appendChild(installBlock(opt));
+      });
+
+      var links = document.createElement("div");
+      links.className = "tool-links";
+      if (d.site) {
+        var a1 = document.createElement("a");
+        a1.href = d.site; a1.rel = "noopener"; a1.textContent = "Website ↗";
+        links.appendChild(a1);
+      }
+      if (d.repo) {
+        var a2 = document.createElement("a");
+        a2.href = d.repo; a2.rel = "noopener"; a2.textContent = "GitHub ↗";
+        links.appendChild(a2);
+      }
+      var focus = document.createElement("button");
+      focus.type = "button";
+      focus.className = "tool-focus";
+      focus.textContent = "Show on map ↓";
+      focus.addEventListener("click", function () {
+        select(id);
+        var map = document.getElementById("map");
+        if (map) map.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+      });
+      links.appendChild(focus);
+      card.appendChild(links);
+
+      host.appendChild(card);
+    });
+  }
+
+  /* --------------------------------------------------------- terminal demo */
+
+  var DEMO = [
+    { cmd: "obsctl scene 'BRB'",  out: ['{ "ok": true, "scene": "BRB" }'] },
+    { cmd: "obsctl mute 'Mic'",   out: ['{ "ok": true, "muted": true }'] },
+    { cmd: "obsctl obs-status",   out: ['{ "ok": true, "live": true, "fps": 60.0 }'] },
+    { cmd: "obsctl vol 'Mic' 70", out: ['{ "ok": true, "volume": 70 }', "exit 0"] }
+  ];
+
+  function startDemo() {
+    var body = document.getElementById("demo-body");
+    var win = document.getElementById("demo-win");
+    var hint = document.getElementById("demo-hint");
+    if (!body) return;
+
+    function line(cls) {
+      var el = document.createElement("div");
+      el.className = "demo-line" + (cls ? " " + cls : "");
+      body.appendChild(el);
+      return el;
+    }
+
+    // Reduced motion: render the finished transcript, no typing.
+    if (reduceMotion) {
+      DEMO.forEach(function (step) {
+        line().innerHTML = '<span class="c-green">$</span> ' + escapeHtml(step.cmd);
+        step.out.forEach(function (o) { line("c-green").textContent = o; });
+      });
+      if (hint) hint.textContent = "transcript";
+      return;
+    }
+
+    var paused = false;
+    if (win) {
+      win.addEventListener("mouseenter", function () { paused = true; if (hint) hint.textContent = "paused"; });
+      win.addEventListener("mouseleave", function () { paused = false; if (hint) hint.textContent = "running"; });
+    }
+
+    var step = 0, ch = 0, cur = null, caret = null, pendingWipe = false;
+
+    function tick(delay) { setTimeout(run, delay); }
+
+    function run() {
+      // Hold position while hovered or while the tab is in the background.
+      if (paused) return tick(220);
+      if (document.hidden) return tick(400);
+
+      // Clear only once the finished transcript has had its moment on screen.
+      if (pendingWipe) { body.textContent = ""; pendingWipe = false; }
+
+      var s = DEMO[step];
+
+      if (!cur) {
+        cur = line();
+        var prompt = document.createElement("span");
+        prompt.className = "c-green";
+        prompt.textContent = "$";
+        var typed = document.createElement("span");
+        typed.className = "typed";
+        caret = document.createElement("span");
+        caret.className = "demo-caret";
+        cur.appendChild(prompt);
+        cur.appendChild(document.createTextNode(" "));
+        cur.appendChild(typed);
+        cur.appendChild(caret);
+        ch = 0;
+      }
+
+      if (ch < s.cmd.length) {
+        ch++;
+        cur.querySelector(".typed").textContent = s.cmd.slice(0, ch);
+        return tick(38 + (ch % 3) * 12);   // slight jitter reads as human
+      }
+
+      if (caret) { caret.remove(); caret = null; }
+      s.out.forEach(function (o) { line("c-green").textContent = o; });
+      cur = null;
+      step++;
+
+      if (step < DEMO.length) return tick(700);
+
+      // Loop: pause on the finished transcript, then wipe and start over so the
+      // pane never grows without bound.
+      step = 0;
+      pendingWipe = true;
+      return tick(2800);
+    }
+
+    tick(600);
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  /* -------------------------------------------------------- scroll effects */
+
+  function initReveal() {
+    var items = document.querySelectorAll(".reveal");
+    if (!("IntersectionObserver" in window) || reduceMotion) {
+      Array.prototype.forEach.call(items, function (el) { el.classList.add("is-in"); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        e.target.classList.add("is-in");
+        io.unobserve(e.target);
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+
+    Array.prototype.forEach.call(items, function (el, i) {
+      // small stagger within a row of siblings
+      el.style.transitionDelay = Math.min(i % 6, 5) * 55 + "ms";
+      io.observe(el);
+    });
+  }
+
+  function initCounters() {
+    var nums = document.querySelectorAll(".stat-num[data-count]");
+    if (!nums.length) return;
+
+    function render(el, v) {
+      var prefix = el.querySelector(".stat-prefix");
+      el.textContent = String(v);
+      if (prefix) el.insertBefore(prefix, el.firstChild);
+    }
+
+    function animate(el) {
+      var target = Number(el.dataset.count) || 0;
+      if (reduceMotion || target === 0) return render(el, target);
+
+      var dur = 900, t0 = performance.now();
+      (function frame(now) {
+        var p = Math.min(1, (now - t0) / dur);
+        var eased = 1 - Math.pow(1 - p, 3);
+        render(el, Math.round(target * eased));
+        if (p < 1) requestAnimationFrame(frame);
+      })(t0);
+    }
+
+    if (!("IntersectionObserver" in window)) {
+      Array.prototype.forEach.call(nums, function (el) { animate(el); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        animate(e.target);
+        io.unobserve(e.target);
+      });
+    }, { threshold: 0.4 });
+    Array.prototype.forEach.call(nums, function (el) { io.observe(el); });
+  }
+
+  function initChrome() {
+    var bar = document.getElementById("scroll-progress");
+    var toTop = document.getElementById("to-top");
+    var links = document.querySelectorAll('#nav a[href^="#"]');
+    var ticking = false;
+
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function () {
+        var h = document.documentElement.scrollHeight - window.innerHeight;
+        var y = window.scrollY || window.pageYOffset;
+        if (bar) bar.style.width = (h > 0 ? (y / h) * 100 : 0) + "%";
+        if (toTop) toTop.classList.toggle("is-on", y > 700);
+        ticking = false;
+      });
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+
+    if (toTop) {
+      toTop.addEventListener("click", function () {
+        window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+      });
+    }
+
+    // active section in the nav
+    if ("IntersectionObserver" in window && links.length) {
+      var byId = {};
+      Array.prototype.forEach.call(links, function (a) {
+        byId[a.getAttribute("href").slice(1)] = a;
+      });
+      var sections = Object.keys(byId)
+        .map(function (id) { return document.getElementById(id); })
+        .filter(Boolean);
+
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          Array.prototype.forEach.call(links, function (a) { a.classList.remove("is-active"); });
+          var a = byId[e.target.id];
+          if (a) a.classList.add("is-active");
+        });
+      }, { rootMargin: "-45% 0px -50% 0px" });
+      sections.forEach(function (s) { io.observe(s); });
+    }
+  }
+
   /* ------------------------------------------------------------------ init */
 
   buildNodes();
   buildBaseEdges();
   buildIdeaDots();
+  buildToolCards();
   select(sel);
   paintIdea();
   startIdeaTimer();
   startBackground();
+  startDemo();
+  initReveal();
+  initCounters();
+  initChrome();
 })();

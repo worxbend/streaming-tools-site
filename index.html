@@ -21,6 +21,7 @@
 </head>
 <body>
 
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
 <canvas id="bg-canvas" aria-hidden="true"></canvas>
 
 <div class="shell">
@@ -30,9 +31,11 @@
       <span class="brand-name">worxbend</span>
       <span class="brand-path">~/streaming</span>
     </div>
-    <nav class="nav" aria-label="Primary">
+    <nav class="nav" id="nav" aria-label="Primary">
       <a href="#idea">Idea</a>
+      <a href="#tools">Tools</a>
       <a href="#map">Map</a>
+      <a href="#start">Start</a>
       <a href="https://github.com/worxbend" rel="noopener">GitHub ↗</a>
     </nav>
   </header>
@@ -40,10 +43,10 @@
   <main>
 
   <section class="wrap hero">
-    <div class="eyebrow">OBS STUDIO · TWITCH · TWO-MACHINE SETUP</div>
-    <h1 class="hero-title">Your stream. Your terminal. <span class="accent">Zero alt-tabs.</span></h1>
-    <p class="hero-lede">Five small, sharp, open-source utilities for OBS Studio and Twitch — built in Rust and Crystal, terminal-first, no Electron in sight.</p>
-    <ul class="pills">
+    <div class="eyebrow reveal">OBS STUDIO · TWITCH · TWO-MACHINE SETUP</div>
+    <h1 class="hero-title reveal">Your stream. Your terminal. <span class="accent">Zero alt-tabs.</span></h1>
+    <p class="hero-lede reveal">Five small, sharp, open-source utilities for OBS Studio and Twitch — built in Rust and Crystal, terminal-first, no Electron in sight.</p>
+    <ul class="pills reveal">
       <li class="pill">RUST + CRYSTAL</li>
       <li class="pill">SINGLE BINARIES</li>
       <li class="pill">NO ELECTRON</li>
@@ -51,21 +54,40 @@
       <li class="pill">TWITCH IRC</li>
       <li class="pill">MIT LICENSED</li>
     </ul>
-    <div class="cta-row">
-      <a class="btn btn-primary" href="#map">Explore the map ↓</a>
+    <div class="cta-row reveal">
+      <a class="btn btn-primary" href="#tools">Explore the tools ↓</a>
       <a class="btn btn-ghost" href="https://github.com/worxbend" rel="noopener">GitHub ↗</a>
       <span class="cta-note">5 TOOLS · 2 LANGUAGES · 1 LINK · 0 BROWSER TABS</span>
     </div>
   </section>
 
+  <section class="wrap stats-band" aria-label="At a glance">
+    <div class="stat reveal">
+      <span class="stat-num" data-count="5">0</span>
+      <span class="stat-label">TOOLS</span>
+    </div>
+    <div class="stat reveal">
+      <span class="stat-num" data-count="1"><span class="stat-prefix">:</span>0</span>
+      <span class="stat-label">WEBSOCKET LINK</span>
+    </div>
+    <div class="stat reveal">
+      <span class="stat-num" data-count="0">0</span>
+      <span class="stat-label">ELECTRON APPS</span>
+    </div>
+    <div class="stat reveal">
+      <span class="stat-num" data-count="4455">0</span>
+      <span class="stat-label">DEFAULT PORT</span>
+    </div>
+  </section>
+
   <section class="wrap idea" id="idea">
-    <div class="section-tag"><span class="rule"></span>THE IDEA</div>
-    <h2 class="section-title">Two machines, one link.</h2>
-    <p class="section-lede">OBS runs on the rig that captures and encodes. These tools run on the machine you actually work on. Between them is OBS's own WebSocket server — so the machine under load never has to be the machine you touch.</p>
+    <div class="section-tag reveal"><span class="rule"></span>THE IDEA</div>
+    <h2 class="section-title reveal">Two machines, one link.</h2>
+    <p class="section-lede reveal">OBS runs on the rig that captures and encodes. These tools run on the machine you actually work on. Between them is OBS's own WebSocket server — so the machine under load never has to be the machine you touch.</p>
 
     <div class="idea-grid">
 
-      <div class="idea-col">
+      <div class="idea-col reveal">
         <div class="node-label"><span class="dot dot-green"></span>YOUR MACHINE</div>
 
         <div class="win" id="idea-win">
@@ -123,7 +145,7 @@
         <div class="idea-caption" id="idea-caption"></div>
       </div>
 
-      <div class="idea-link">
+      <div class="idea-link reveal">
         <div class="link-head">OBS-WEBSOCKET 5.X</div>
         <div class="wire wire-purple"></div>
         <div class="link-note">COMMANDS ▸</div>
@@ -132,7 +154,7 @@
         <div class="link-foot">127.0.0.1:4455 BY DEFAULT</div>
       </div>
 
-      <div class="idea-col">
+      <div class="idea-col reveal">
         <div class="node-label"><span class="dot dot-red pulse"></span>STREAMING RIG</div>
         <div class="win">
           <div class="win-bar">
@@ -161,13 +183,20 @@
     </div>
   </section>
 
+  <section class="wrap toolkit" id="tools">
+    <div class="section-tag reveal"><span class="rule"></span>THE TOOLKIT</div>
+    <h2 class="section-title reveal">Five binaries, one workflow.</h2>
+    <p class="section-lede reveal">Each one does a single job well and talks the same protocol. Take all five, or take the one you need.</p>
+    <div class="tool-grid" id="tool-grid"></div>
+  </section>
+
   <section class="wrap map-section" id="map">
-    <div class="map-head">
+    <div class="map-head reveal">
       <div class="section-tag-sm">THE MAP</div>
       <div class="section-hint">click any node</div>
     </div>
 
-    <div class="map-frame">
+    <div class="map-frame reveal">
       <div class="map-stage">
         <svg class="map-svg" width="1040" height="580" viewBox="0 0 1040 580" aria-hidden="true">
           <defs>
@@ -215,22 +244,141 @@
       <div class="detail-chips" id="sel-chips"></div>
       <div class="detail-connects" id="sel-connects"></div>
 
-      <div class="install" id="sel-install" hidden>
-        <div class="install-head">
-          <span class="install-tag" id="install-tag"></span>
-          <a class="install-inspect" id="install-inspect" href="#" rel="noopener" hidden>read it first ↗</a>
-          <a class="install-alt" id="install-alt" href="#" rel="noopener" hidden></a>
-        </div>
-        <div class="install-cmd">
-          <code id="install-cmd"></code>
-          <button type="button" class="install-copy" id="install-copy">Copy</button>
-        </div>
-      </div>
+      <div class="installs" id="sel-installs" hidden></div>
 
       <div class="detail-links" id="sel-links" hidden>
         <a id="sel-site" href="#" rel="noopener">Website ↗</a>
         <a id="sel-repo" href="#" rel="noopener">GitHub ↗</a>
       </div>
+    </div>
+  </section>
+
+  <section class="wrap demo-section">
+    <div class="section-tag reveal"><span class="rule"></span>IN THE TERMINAL</div>
+    <h2 class="section-title reveal">Commands in. JSON out.</h2>
+    <p class="section-lede reveal">Every CLI call prints one envelope and exits with a code that means something — so your hotkeys and shell scripts can actually branch on the result.</p>
+
+    <div class="demo-win reveal" id="demo-win">
+      <div class="win-bar">
+        <span class="tl"></span><span class="tl"></span><span class="tl"></span>
+        <span class="win-title">~/streaming — obsctl</span>
+        <span class="demo-hint" id="demo-hint">running</span>
+      </div>
+      <div class="demo-body" id="demo-body" aria-live="off"></div>
+    </div>
+  </section>
+
+  <section class="wrap start-section" id="start">
+    <div class="section-tag reveal"><span class="rule"></span>QUICK START</div>
+    <h2 class="section-title reveal">Live in three steps.</h2>
+    <p class="section-lede reveal">This walks through <code class="inline-code">obsctl-rs</code>; the others follow the same shape.</p>
+
+    <ol class="steps">
+      <li class="step reveal">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <h3>Turn on OBS's WebSocket server</h3>
+          <p>On the streaming rig, open <strong>Tools ▸ WebSocket Server Settings</strong>, enable the server and copy the password. OBS 28 and newer ship obs-websocket 5.x built in.</p>
+          <div class="cmd-box static">
+            <code>OBS Studio ▸ Tools ▸ WebSocket Server Settings ▸ Enable</code>
+          </div>
+        </div>
+      </li>
+      <li class="step reveal">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <h3>Install the tool on your workstation</h3>
+          <p>One script, one static binary, no runtime to manage. Read it first if you'd rather not pipe a stranger into your shell.</p>
+          <div class="cmd-box">
+            <code>curl -fsSL https://github.com/worxbend/obsctl-rs/releases/latest/download/install.sh | sh</code>
+            <button type="button" class="copy-btn">Copy</button>
+          </div>
+          <a class="step-link" href="https://github.com/worxbend/obsctl-rs/releases/latest/download/install.sh" rel="noopener">read the script first ↗</a>
+        </div>
+      </li>
+      <li class="step reveal">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <h3>Point it at the rig and go</h3>
+          <p>Initialise the config, hand it the password, start the daemon that owns the socket, then open the dashboard.</p>
+          <div class="cmd-box">
+            <code>obsctl init
+export OBS_WEBSOCKET_PASSWORD='your_password'
+obsctl server --headless
+obsctl tui</code>
+            <button type="button" class="copy-btn">Copy</button>
+          </div>
+          <p class="step-note">Want it always on? <code class="inline-code">obsctl service install</code> then <code class="inline-code">systemctl --user enable --now obsctl.service</code>.</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section class="wrap why-section">
+    <div class="section-tag reveal"><span class="rule"></span>WHY TERMINAL-FIRST</div>
+    <h2 class="section-title reveal">Small tools that stay out of the way.</h2>
+    <div class="why-grid">
+      <div class="why-card reveal">
+        <div class="why-icon">◧</div>
+        <h3>Nothing steals focus</h3>
+        <p>No window jumping in front of the thing you are capturing. A pane, a hotkey, and you are back.</p>
+      </div>
+      <div class="why-card reveal">
+        <div class="why-icon">⬢</div>
+        <h3>Single static binaries</h3>
+        <p>Rust and Crystal, linked against musl where it counts. Drop the file in <code class="inline-code">~/.local/bin</code> and it runs.</p>
+      </div>
+      <div class="why-card reveal">
+        <div class="why-icon">⇄</div>
+        <h3>One socket, one owner</h3>
+        <p>A local daemon holds the WebSocket so the CLI and TUI never fight over the connection.</p>
+      </div>
+      <div class="why-card reveal">
+        <div class="why-icon">{}</div>
+        <h3>Scriptable by design</h3>
+        <p>JSON envelopes and honest exit codes. Bind a scene switch to a key, or branch on it in CI.</p>
+      </div>
+      <div class="why-card reveal">
+        <div class="why-icon">◉</div>
+        <h3>Load stays on the rig</h3>
+        <p>Encoding happens where it should. Your workstation only sends commands and reads telemetry.</p>
+      </div>
+      <div class="why-card reveal">
+        <div class="why-icon">✦</div>
+        <h3>Yours to change</h3>
+        <p>Every tool is MIT licensed, with themes, locales and configs meant to be edited.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap faq-section">
+    <div class="section-tag reveal"><span class="rule"></span>QUESTIONS</div>
+    <h2 class="section-title reveal">Before you install.</h2>
+    <div class="faq reveal">
+      <details class="faq-item">
+        <summary>Do I actually need two machines?</summary>
+        <div class="faq-body"><p>No. Two machines is the setup these tools were shaped around, but every one of them works against a local OBS. Point them at <code class="inline-code">127.0.0.1:4455</code> and nothing else changes.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>Which version of OBS do I need?</summary>
+        <div class="faq-body"><p>OBS 28 or newer. That is when obs-websocket 5.x became part of OBS itself, so there is no plugin to install — just enable the server under <strong>Tools ▸ WebSocket Server Settings</strong>.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>Is there anything with a GUI?</summary>
+        <div class="faq-body"><p>SceneDeck. It is a native GTK4 desktop app rather than a terminal tool — the same control surface, for when you want buttons instead of keys.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>Do I have to install all five?</summary>
+        <div class="faq-body"><p>No. They are separate binaries that happen to speak the same protocol. Most people start with one control tool and add <code class="inline-code">obs-stats</code> when they want to watch for dropped frames.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>Why pipe a script into a shell?</summary>
+        <div class="faq-body"><p>Because it is the shortest path to a working binary. Every install command here links the raw script next to it so you can read exactly what it does first — or skip it entirely and grab a release tarball.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>What does it cost?</summary>
+        <div class="faq-body"><p>Nothing. All five are MIT licensed and developed in the open on GitHub.</p></div>
+      </details>
     </div>
   </section>
 
@@ -242,6 +390,8 @@
   </footer>
 
 </div>
+
+<button type="button" class="to-top" id="to-top" aria-label="Back to top">↑</button>
 
 <script src="assets/app.js" defer></script>
 </body>
