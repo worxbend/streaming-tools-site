@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>worxbend — streaming tools map</title>
+<meta name="description" content="Five small, sharp, open-source utilities for OBS Studio and Twitch — built in Rust and Crystal, terminal-first, no Electron in sight.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0f1012">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="worxbend — streaming tools map">
+<meta property="og:description" content="Five small, sharp, open-source utilities for OBS Studio and Twitch. Rust + Crystal, terminal-first, no Electron.">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+
+<canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+<div class="shell">
+
+  <header class="wrap header">
+    <div class="brand">
+      <span class="brand-name">worxbend</span>
+      <span class="brand-path">~/streaming</span>
+    </div>
+    <nav class="nav" aria-label="Primary">
+      <a href="#idea">Idea</a>
+      <a href="#map">Map</a>
+      <a href="https://github.com/worxbend" rel="noopener">GitHub ↗</a>
+    </nav>
+  </header>
+
+  <main>
+
+  <section class="wrap hero">
+    <div class="eyebrow">OBS STUDIO · TWITCH · TWO-MACHINE SETUP</div>
+    <h1 class="hero-title">Your stream. Your terminal. <span class="accent">Zero alt-tabs.</span></h1>
+    <p class="hero-lede">Five small, sharp, open-source utilities for OBS Studio and Twitch — built in Rust and Crystal, terminal-first, no Electron in sight.</p>
+    <ul class="pills">
+      <li class="pill">RUST + CRYSTAL</li>
+      <li class="pill">SINGLE BINARIES</li>
+      <li class="pill">NO ELECTRON</li>
+      <li class="pill">OBS-WEBSOCKET 5</li>
+      <li class="pill">TWITCH IRC</li>
+      <li class="pill">MIT LICENSED</li>
+    </ul>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#map">Explore the map ↓</a>
+      <a class="btn btn-ghost" href="https://github.com/worxbend" rel="noopener">GitHub ↗</a>
+      <span class="cta-note">5 TOOLS · 2 LANGUAGES · 1 LINK · 0 BROWSER TABS</span>
+    </div>
+  </section>
+
+  <section class="wrap idea" id="idea">
+    <div class="section-tag"><span class="rule"></span>THE IDEA</div>
+    <h2 class="section-title">Two machines, one link.</h2>
+    <p class="section-lede">OBS runs on the rig that captures and encodes. These tools run on the machine you actually work on. Between them is OBS's own WebSocket server — so the machine under load never has to be the machine you touch.</p>
+
+    <div class="idea-grid">
+
+      <div class="idea-col">
+        <div class="node-label"><span class="dot dot-green"></span>YOUR MACHINE</div>
+
+        <div class="win" id="idea-win">
+          <div class="win-bar">
+            <span class="tl"></span><span class="tl"></span><span class="tl"></span>
+            <span class="win-title" id="idea-title">SceneDeck</span>
+          </div>
+
+          <div class="idea-panel is-on" data-idea="0">
+            <div class="gui-side">
+              <span class="gui-row on"></span>
+              <span class="gui-row"></span>
+              <span class="gui-row"></span>
+              <span class="gui-row"></span>
+              <span class="gui-row"></span>
+            </div>
+            <div class="gui-grid">
+              <span class="gui-cell on"></span><span class="gui-cell"></span><span class="gui-cell"></span>
+              <span class="gui-cell"></span><span class="gui-cell"></span><span class="gui-cell"></span>
+            </div>
+          </div>
+
+          <div class="idea-panel term" data-idea="1">
+            <div><span class="c-purple">obsctl-rs</span><span class="c-dim"> ▸ dashboard</span></div>
+            <div class="c-green">● connected · obs 30.1 · 60 fps</div>
+            <div><span class="chip-live">▶ LIVE: Gameplay</span></div>
+            <div class="c-muted">scenes: intro · gameplay · brb</div>
+            <div class="c-muted">mic −12 dB ▮▮▮▮▯▯ · desktop −20 dB</div>
+          </div>
+
+          <div class="idea-panel term" data-idea="2">
+            <div class="c-text"><span class="c-green">$</span> obsctl scene switch BRB</div>
+            <div class="c-green">{ "ok": true, "scene": "BRB" }</div>
+            <div class="c-text"><span class="c-green">$</span> obsctl stream status</div>
+            <div class="c-green">{ "live": true, "kbps": 6000 }</div>
+            <div class="c-dim">exit 0</div>
+          </div>
+
+          <div class="idea-panel meters" data-idea="3">
+            <div class="meter"><span class="m-key">CPU</span><span class="m-track"><span class="m-fill purple" style="width:34%"></span></span><span class="m-val">34%</span></div>
+            <div class="meter"><span class="m-key">FPS</span><span class="m-track"><span class="m-fill green" style="width:92%"></span></span><span class="m-val">60.0</span></div>
+            <div class="meter"><span class="m-key">ENC</span><span class="m-track"><span class="m-fill green" style="width:22%"></span></span><span class="m-val">2.1ms</span></div>
+            <div class="meter"><span class="m-key">NET</span><span class="m-track"><span class="m-fill amber" style="width:12%"></span></span><span class="m-val c-green">0 DROPPED</span></div>
+          </div>
+
+          <div class="idea-panel term chat" data-idea="4">
+            <div><span class="c-purple">viewer_42</span><span class="c-dim">:</span> gg that transition</div>
+            <div><span class="c-green">mira</span><span class="c-dim">:</span> !uptime</div>
+            <div><span class="c-dim">twi-bot: live for 2h 14m</span></div>
+            <div><span class="c-text">you</span><span class="c-dim">:</span> thanks &lt;3</div>
+          </div>
+        </div>
+
+        <div class="idea-dots" id="idea-dots" role="tablist" aria-label="Tool preview"></div>
+        <div class="idea-caption" id="idea-caption"></div>
+      </div>
+
+      <div class="idea-link">
+        <div class="link-head">OBS-WEBSOCKET 5.X</div>
+        <div class="wire wire-purple"></div>
+        <div class="link-note">COMMANDS ▸</div>
+        <div class="wire wire-green"></div>
+        <div class="link-note">◂ SCENES · AUDIO · TELEMETRY</div>
+        <div class="link-foot">127.0.0.1:4455 BY DEFAULT</div>
+      </div>
+
+      <div class="idea-col">
+        <div class="node-label"><span class="dot dot-red pulse"></span>STREAMING RIG</div>
+        <div class="win">
+          <div class="win-bar">
+            <span class="tl"></span><span class="tl"></span><span class="tl"></span>
+            <span class="win-title">OBS Studio</span>
+            <span class="rec"><span class="dot dot-red pulse"></span>REC</span>
+          </div>
+          <div class="obs-body">
+            <div class="obs-preview">
+              <span class="obs-sun"></span>
+              <span class="obs-ground"></span>
+            </div>
+            <div class="obs-levels">
+              <span style="flex:1"></span>
+              <span style="flex:1.4;opacity:.85"></span>
+              <span style="flex:.8;opacity:.55"></span>
+              <span style="flex:1.2;opacity:.75"></span>
+              <span style="flex:.9;opacity:.45"></span>
+              <span class="off" style="flex:1"></span>
+            </div>
+          </div>
+        </div>
+        <div class="idea-caption">CAPTURING AND ENCODING.<br>BUSY, AND LEFT ALONE.<br><span class="c-muted">— TO TWITCH · RTMP</span></div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="wrap map-section" id="map">
+    <div class="map-head">
+      <div class="section-tag-sm">THE MAP</div>
+      <div class="section-hint">click any node</div>
+    </div>
+
+    <div class="map-frame">
+      <div class="map-stage">
+        <svg class="map-svg" width="1040" height="580" viewBox="0 0 1040 580" aria-hidden="true">
+          <defs>
+            <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#56534d" stroke-width="1.6"></path>
+            </marker>
+            <marker id="arrHl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#b49af0" stroke-width="1.8"></path>
+            </marker>
+            <marker id="arrCap" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#5fce93" stroke-width="1.6"></path>
+            </marker>
+          </defs>
+          <g id="edges-base"></g>
+          <g id="edges-hl"></g>
+        </svg>
+
+        <div class="map-lab" data-lab="ws"   style="left:386px;top:112px">OBS-WEBSOCKET 5.X</div>
+        <div class="map-lab sm" data-lab="cmd"  style="left:398px;top:214px">COMMANDS OUT ▸</div>
+        <div class="map-lab sm" data-lab="mon"  style="left:418px;top:298px">MONITOR</div>
+        <div class="map-lab sm" data-lab="tel"  style="left:338px;top:404px">◂ SCENES, AUDIO, TELEMETRY</div>
+        <div class="map-lab sm" data-lab="rtmp" style="left:792px;top:184px">RTMP ▸</div>
+        <div class="map-lab sm" data-lab="chat" style="left:604px;top:458px">CHAT · IRC</div>
+        <div class="map-lab sm" data-lab="cap"  style="left:346px;top:30px">CAPTURES SCREEN + AUDIO</div>
+
+        <div class="zone" style="left:24px;top:68px;width:300px;height:476px"></div>
+        <div class="zone-label" style="left:40px;top:80px">WORKSTATION — WHERE YOU SIT</div>
+        <div class="zone" style="left:558px;top:100px;width:254px;height:216px"></div>
+        <div class="zone-label" style="left:574px;top:112px">STREAMING RIG</div>
+
+        <div id="map-nodes"></div>
+      </div>
+    </div>
+
+    <p class="map-foot">SAME MACHINE WORKS TOO — POINT THE TOOLS AT LOCALHOST (127.0.0.1:4455 BY DEFAULT) AND EVERYTHING BEHAVES THE SAME WAY.</p>
+  </section>
+
+  <section class="wrap detail-section" aria-live="polite">
+    <div class="detail">
+      <div class="detail-head">
+        <h2 id="sel-name"></h2>
+        <span class="detail-kind" id="sel-kind"></span>
+      </div>
+      <p class="detail-desc" id="sel-desc"></p>
+      <div class="detail-chips" id="sel-chips"></div>
+      <div class="detail-connects" id="sel-connects"></div>
+      <div class="detail-links" id="sel-links" hidden>
+        <a id="sel-site" href="#" rel="noopener">Website ↗</a>
+        <a id="sel-repo" href="#" rel="noopener">GitHub ↗</a>
+      </div>
+    </div>
+  </section>
+
+  </main>
+
+  <footer class="wrap footer">
+    <span>© 2026 worxbend · all tools MIT licensed · Rust + Crystal</span>
+    <a href="https://github.com/worxbend" rel="noopener">github.com/worxbend ↗</a>
+  </footer>
+
+</div>
+
+<script src="/assets/app.js" defer></script>
+</body>
+</html>
