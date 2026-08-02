@@ -169,8 +169,8 @@ first* so it can be inspected before running.
 | ------- | ---------- |
 | Hero + stats band | markup; counters animate from `data-count` |
 | The idea | markup; 5-panel carousel auto-advances every 3.2s, pauses on hover |
-| The toolkit | rendered from `DATA` + `CARD_META` (per-card accent, blurb, features) |
 | The map + detail | rendered from `DATA` + `GEO` + `EDGES` |
+| The toolkit | rendered from `DATA` + `CARD_META` (per-card accent, blurb, features) |
 | In the terminal | `DEMO` transcript, typed character by character on a loop |
 | Quick start | markup; commands taken from the obsctl-rs README |
 | Why terminal-first, Questions | markup (`<details>` for the FAQ) |

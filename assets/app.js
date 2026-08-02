@@ -680,7 +680,8 @@
       var focus = document.createElement("button");
       focus.type = "button";
       focus.className = "tool-focus";
-      focus.textContent = "Show on map ↓";
+      // The map now sits above the toolkit, so this scrolls back up.
+      focus.textContent = "Show on map ↑";
       focus.addEventListener("click", function () {
         select(id);
         var map = document.getElementById("map");
