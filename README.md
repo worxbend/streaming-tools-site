@@ -134,24 +134,26 @@ the URL actually serves what it claims:
 | Tool | Method | Source |
 | ---- | ------ | ------ |
 | `obsctl-rs` | `curl \| sh` | `releases/latest/download/install.sh` |
+| `obsctl` | `curl \| sh` | `worxbend.github.io/obsctl/install.sh` |
 | `obs-stats` | `curl \| sh` | `raw.githubusercontent.com/.../main/scripts/install.sh` |
 | `twi` | `curl \| sh` | `releases/latest/download/install.sh` |
 | `scenedeck` | Snap Store | strict-confinement snap |
 | `scenedeck` | GitHub release binary | for people who do not use snap |
-| `obsctl` | from source | no installer script published |
 
 Every `curl` uses `-fsSL`. The `L` matters: the release-asset URLs answer `302`,
 so a command without `-L` pipes a redirect body into `sh` and silently does
 nothing.
 
-Two tools have no `latest/download` shortcut because their release assets are
-version-stamped (`scenedeck-0.1.21-linux-amd64`):
+`obsctl` uses the Pages-hosted URL because that is the form its README documents;
+the same script is attached to each release at
+`releases/latest/download/install.sh` if you prefer that.
 
-- **scenedeck** resolves the current tag from the GitHub API first, then
-  downloads and `install -Dm755`s the binary. It also links the releases page for
-  the AppImage, flatpak and arm64 builds.
-- **obsctl** has no installer at all, so it shows the documented source build and
-  links its prebuilt static tarballs.
+**scenedeck** is the one tool with no installer script. It is published to the
+Snap Store, and for anyone not using snap the second option resolves the current
+release tag from the GitHub API, downloads the binary and `install -Dm755`s it —
+its assets are version-stamped (`scenedeck-0.1.21-linux-amd64`), so there is no
+stable `latest/download` URL. It also links the releases page for the AppImage,
+flatpak and arm64 builds.
 
 Where a script is piped to a shell, the block links the raw script as *read it
 first* so it can be inspected before running.

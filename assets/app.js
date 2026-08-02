@@ -52,12 +52,12 @@
       desc: "The same control-room idea in Crystal. A resilient daemon that survives OBS restarts with bounded reconnect backoff, a CLI that prints one JSON envelope per call with exit codes that mean something in shell scripts, and a TUI built on its own CryTUI library.",
       detailChips: ["Crystal", "static musl builds", "amd64 + arm64", "EN + UK locales", "MIT"],
       connects: "workstation ──commands──▶ remote OBS ──telemetry──▶ back",
-      // No install script upstream. Release tarballs are version-stamped, so
-      // there is no stable latest/download URL — source build is the one
-      // command that keeps working across releases.
+      // Installer is served from the project's own Pages site (the form its
+      // README documents) and is also attached to every release.
       installs: [{
-        tag: "FROM SOURCE",
-        cmd: "git clone https://github.com/worxbend/obsctl.git && cd obsctl && shards install && make release",
+        tag: "CURL | SH",
+        cmd: "curl -fsSL https://worxbend.github.io/obsctl/install.sh | sh",
+        inspect: "https://worxbend.github.io/obsctl/install.sh",
         alt: { text: "prebuilt static binaries ↗", href: "https://github.com/worxbend/obsctl/releases" }
       }],
       site: "https://worxbend.github.io/obsctl/", repo: "https://github.com/worxbend/obsctl"
@@ -476,8 +476,12 @@
   function startBackground() {
     var canvas = document.getElementById("bg-canvas");
     if (!canvas) return;
-    var ctx = canvas.getContext("2d");
-    if (!ctx) return;
+
+    // Canvas can be blocked or throw outright (Firefox resistFingerprinting,
+    // privacy extensions). It is decoration — never let it break the page.
+    var ctx = null;
+    try { ctx = canvas.getContext("2d"); } catch (e) { ctx = null; }
+    if (!ctx) { canvas.style.display = "none"; return; }
 
     var t = (1 + Math.sqrt(5)) / 2;
     var verts = [
@@ -531,6 +535,11 @@
     var raf, rot = 0, last = performance.now();
 
     function draw(now) {
+      try { paint(now); } catch (e) { cancelAnimationFrame(raf); canvas.style.display = "none"; return; }
+      raf = requestAnimationFrame(draw);
+    }
+
+    function paint(now) {
       var dt = Math.min(50, now - last);
       last = now;
       if (!reduceMotion) rot += dt * 0.00006;
@@ -576,8 +585,6 @@
         ctx.arc(p[0], p[1], 1.4, 0, 6.284);
         ctx.fill();
       });
-
-      raf = requestAnimationFrame(draw);
     }
 
     raf = requestAnimationFrame(draw);
@@ -783,12 +790,40 @@
 
   /* -------------------------------------------------------- scroll effects */
 
+  function revealAll() {
+    Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function (el) {
+      el.classList.add("is-in");
+    });
+  }
+
   function initReveal() {
     var items = document.querySelectorAll(".reveal");
     if (!("IntersectionObserver" in window) || reduceMotion) {
-      Array.prototype.forEach.call(items, function (el) { el.classList.add("is-in"); });
+      revealAll();
       return;
     }
+    var io;
+    try {
+      io = makeRevealObserver();
+    } catch (e) {
+      // Anything goes wrong setting up the effect: show the content.
+      revealAll();
+      return;
+    }
+
+    Array.prototype.forEach.call(items, function (el, i) {
+      el.style.transitionDelay = Math.min(i % 6, 5) * 55 + "ms";
+      io.observe(el);
+    });
+
+    // Safety net: if nothing has been revealed shortly after load, the effect is
+    // not working for this browser — show everything rather than a blank page.
+    setTimeout(function () {
+      if (!document.querySelector(".reveal.is-in")) revealAll();
+    }, 2500);
+  }
+
+  function makeRevealObserver() {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
         if (!e.isIntersecting) return;
@@ -796,12 +831,7 @@
         io.unobserve(e.target);
       });
     }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
-
-    Array.prototype.forEach.call(items, function (el, i) {
-      // small stagger within a row of siblings
-      el.style.transitionDelay = Math.min(i % 6, 5) * 55 + "ms";
-      io.observe(el);
-    });
+    return io;
   }
 
   function initCounters() {
@@ -891,16 +921,24 @@
 
   /* ------------------------------------------------------------------ init */
 
-  buildNodes();
-  buildBaseEdges();
-  buildIdeaDots();
-  buildToolCards();
-  select(sel);
-  paintIdea();
-  startIdeaTimer();
-  startBackground();
-  startDemo();
-  initReveal();
-  initCounters();
-  initChrome();
+  // Each feature is isolated: one failing widget must never blank the page or
+  // stop the rest from initialising.
+  function safe(name, fn) {
+    try {
+      fn();
+    } catch (e) {
+      if (window.console && console.warn) console.warn("[worxbend] " + name + " failed:", e);
+    }
+  }
+
+  // Reveal first — everything after this point is enhancement.
+  safe("reveal", initReveal);
+  safe("map", function () { buildNodes(); buildBaseEdges(); });
+  safe("cards", buildToolCards);
+  safe("detail", function () { select(sel); });
+  safe("carousel", function () { buildIdeaDots(); paintIdea(); startIdeaTimer(); });
+  safe("chrome", initChrome);
+  safe("counters", initCounters);
+  safe("demo", startDemo);
+  safe("background", startBackground);
 })();
