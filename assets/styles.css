@@ -502,6 +502,67 @@ h1, h2 { text-wrap: pretty; }
 }
 
 .detail-connects { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+
+/* install command */
+
+.install { display: flex; flex-direction: column; gap: 8px; padding-top: 4px; }
+.install[hidden] { display: none; }
+
+.install-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .09em;
+}
+.install-tag { color: var(--green); }
+.install-inspect, .install-alt { font-size: 11px; letter-spacing: .04em; color: var(--dim); }
+.install-inspect:hover, .install-alt:hover { color: var(--purple-lt); }
+.install-inspect[hidden], .install-alt[hidden] { display: none; }
+
+.install-cmd {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  background: #101114;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.install-cmd code {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-2);
+  white-space: pre;
+  overflow-x: auto;
+}
+/* The command is the point — let it scroll rather than squash the button. */
+.install-cmd code::-webkit-scrollbar { height: 6px; }
+.install-cmd code::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 3px; }
+
+.install-copy {
+  flex: none;
+  align-self: stretch;
+  padding: 0 16px;
+  border: 0;
+  border-left: 1px solid var(--line-2);
+  background: var(--panel-2);
+  color: var(--text-2);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .06em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.install-copy:hover { background: var(--panel-3); color: var(--text); }
+.install-copy.ok { color: var(--green); }
 .detail-links { display: flex; gap: 18px; font-size: 14px; padding-top: 4px; }
 .detail-links[hidden] { display: none; }
 

@@ -15,6 +15,8 @@
       desc: "A native GTK4 control surface for the remote OBS. Role-filtered scene switching, a mixer that reaches into nested scenes, live telemetry and Doctor diagnostics — a full control panel on your workstation, always in reach, never stealing focus from what you're capturing.",
       detailChips: ["Rust", "GTK4 + libadwaita", "Linux", "snap install scenedeck", "MIT"],
       connects: "workstation ──commands──▶ remote OBS ──telemetry──▶ back",
+      // Published to the Snap Store under strict confinement; no curl installer.
+      install: { tag: "SNAP STORE", cmd: "sudo snap install scenedeck", inspect: null },
       site: "https://worxbend.github.io/scenedeck/", repo: "https://github.com/worxbend/scenedeck"
     },
     "obsctl-rs": {
@@ -23,6 +25,11 @@
       desc: "An OBS command center in one Rust binary. A local daemon owns the WebSocket link to the remote OBS; a keyboard-driven TUI shows live state; a proxy CLI answers in milliseconds — bind scene switches and mute toggles to any hotkey or script on your workstation.",
       detailChips: ["Rust", "Ratatui TUI", "single binary", "20 CLI commands", "JSON envelope", "29 themes", "MIT"],
       connects: "workstation ──commands──▶ remote OBS ──telemetry──▶ back",
+      install: {
+        tag: "CURL | SH",
+        cmd: "curl --proto '=https' --tlsv1.2 -sSf https://github.com/worxbend/obsctl-rs/releases/latest/download/install.sh | sh",
+        inspect: "https://github.com/worxbend/obsctl-rs/releases/latest/download/install.sh"
+      },
       site: "https://worxbend.github.io/obsctl-rs/", repo: "https://github.com/worxbend/obsctl-rs"
     },
     obsctl: {
@@ -31,6 +38,15 @@
       desc: "The same control-room idea in Crystal. A resilient daemon that survives OBS restarts with bounded reconnect backoff, a CLI that prints one JSON envelope per call with exit codes that mean something in shell scripts, and a TUI built on its own CryTUI library.",
       detailChips: ["Crystal", "static musl builds", "amd64 + arm64", "EN + UK locales", "MIT"],
       connects: "workstation ──commands──▶ remote OBS ──telemetry──▶ back",
+      // No install script upstream. Release tarballs are version-stamped, so
+      // there is no stable latest/download URL — source build is the one
+      // command that keeps working across releases.
+      install: {
+        tag: "FROM SOURCE",
+        cmd: "git clone https://github.com/worxbend/obsctl.git && cd obsctl && shards install && make release",
+        inspect: null,
+        alt: { text: "prebuilt static binaries ↗", href: "https://github.com/worxbend/obsctl/releases" }
+      },
       site: "https://worxbend.github.io/obsctl/", repo: "https://github.com/worxbend/obsctl"
     },
     "obs-stats": {
@@ -39,6 +55,11 @@
       desc: "A btop-style dashboard watching the remote OBS from a terminal pane. It keeps GPU, encoder and network frame loss apart — each has a different fix — and raises a banner plus desktop notification the moment frames start dropping, so you find out before your viewers do.",
       detailChips: ["Rust", "6 views", "desktop notifications", "24 themes", "Linux / macOS / Windows", "MIT"],
       connects: "workstation ──monitor──▶ remote OBS (read-only telemetry)",
+      install: {
+        tag: "CURL | SH",
+        cmd: "curl -fsSL https://raw.githubusercontent.com/worxbend/obs-stats/main/scripts/install.sh | sh",
+        inspect: "https://raw.githubusercontent.com/worxbend/obs-stats/main/scripts/install.sh"
+      },
       site: "https://worxbend.github.io/obs-stats/", repo: "https://github.com/worxbend/obs-stats"
     },
     twi: {
@@ -47,6 +68,13 @@
       desc: "Read and send Twitch chat from a terminal — no browser tab, no Electron, no chat window fighting for focus. It sits in a pane next to obs-stats, talking straight to Twitch IRC.",
       detailChips: ["Crystal", "Twitch IRC", "terminal pane", "MIT"],
       connects: "workstation ──chat / IRC──▶ Twitch",
+      // The README also documents a snap, but snapcraft.io/twi is not published
+      // yet — curl-pipe is the only install path that currently works.
+      install: {
+        tag: "CURL | SH",
+        cmd: "curl --proto '=https' --tlsv1.2 -sSf https://github.com/worxbend/twi/releases/latest/download/install.sh | sh",
+        inspect: "https://github.com/worxbend/twi/releases/latest/download/install.sh"
+      },
       site: "https://worxbend.github.io/twi/", repo: "https://github.com/worxbend/twi"
     },
     obs: {
@@ -224,6 +252,82 @@
   var elSite     = document.getElementById("sel-site");
   var elRepo     = document.getElementById("sel-repo");
 
+  var elInstall     = document.getElementById("sel-install");
+  var elInstallTag  = document.getElementById("install-tag");
+  var elInstallCmd  = document.getElementById("install-cmd");
+  var elInstallInsp = document.getElementById("install-inspect");
+  var elInstallAlt  = document.getElementById("install-alt");
+  var elInstallCopy = document.getElementById("install-copy");
+
+  function paintInstall(d) {
+    var ins = d.install;
+    if (!ins) {
+      elInstall.hidden = true;
+      return;
+    }
+    elInstall.hidden = false;
+    elInstallTag.textContent = ins.tag;
+    elInstallCmd.textContent = ins.cmd;
+
+    if (ins.inspect) {
+      elInstallInsp.href = ins.inspect;
+      elInstallInsp.hidden = false;
+    } else {
+      elInstallInsp.hidden = true;
+    }
+
+    if (ins.alt) {
+      elInstallAlt.href = ins.alt.href;
+      elInstallAlt.textContent = ins.alt.text;
+      elInstallAlt.hidden = false;
+    } else {
+      elInstallAlt.hidden = true;
+    }
+
+    resetCopyLabel();
+  }
+
+  var copyTimer = null;
+  function resetCopyLabel() {
+    if (copyTimer) { clearTimeout(copyTimer); copyTimer = null; }
+    elInstallCopy.textContent = "Copy";
+    elInstallCopy.classList.remove("ok");
+  }
+
+  function flashCopied(ok) {
+    elInstallCopy.textContent = ok ? "Copied ✓" : "Press ⌘/Ctrl+C";
+    elInstallCopy.classList.toggle("ok", ok);
+    if (copyTimer) clearTimeout(copyTimer);
+    copyTimer = setTimeout(resetCopyLabel, 1800);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  elInstallCopy.addEventListener("click", function () {
+    var text = elInstallCmd.textContent;
+    // navigator.clipboard needs a secure context; fall back when absent.
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(
+        function () { flashCopied(true); },
+        function () { flashCopied(legacyCopy(text)); }
+      );
+    } else {
+      flashCopied(legacyCopy(text));
+    }
+  });
+
   function paintDetail() {
     var d = DATA[sel];
     elName.textContent = d.name;
@@ -246,6 +350,8 @@
     } else {
       elLinks.hidden = true;
     }
+
+    paintInstall(d);
   }
 
   function select(id) {

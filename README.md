@@ -121,6 +121,30 @@ In this order, to minimise downtime:
    `gh api -X PUT repos/worxbend/streaming-tools-site/pages -f cname=obs.worxbend.com`).
 4. Tick **Enforce HTTPS** once the certificate is issued.
 
+## Install commands
+
+Each tool's detail panel shows a real install command with a copy button, next to
+its Website/GitHub links. They are stored per tool as `install` in `DATA`
+(`assets/app.js`) and were taken from each project's own README, then checked to
+confirm the URL actually serves a shell script:
+
+| Tool | Method | Source |
+| ---- | ------ | ------ |
+| `obsctl-rs` | `curl \| sh` | `releases/latest/download/install.sh` |
+| `obs-stats` | `curl \| sh` | `raw.githubusercontent.com/.../main/scripts/install.sh` |
+| `twi` | `curl \| sh` | `releases/latest/download/install.sh` |
+| `scenedeck` | Snap Store | strict-confinement snap, no installer script |
+| `obsctl` | from source | no installer script; release tarballs are version-stamped, so there is no stable `latest/download` URL |
+
+Where a script is piped to a shell, the panel also links the raw script as *read
+it first* so it can be inspected before running. `obsctl` links its prebuilt
+static binaries instead.
+
+> [!NOTE]
+> These are copies of upstream instructions. If a tool changes how it is
+> installed, update `DATA[...].install` here too — nothing verifies it
+> automatically.
+
 ## Editing content
 
 Tool copy, chips and links live in the `DATA` object at the top of `assets/app.js`.
