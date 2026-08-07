@@ -1429,7 +1429,14 @@ h1, h2 { text-wrap: pretty; }
 /* Per-widget surface glow. --mx/--my are element-local percentages of the
    *lagging* point, so the sheen slides in behind the cursor rather than
    sticking to it. .is-lit is set by app.js, not by :hover. */
-[data-spot] { position: relative; isolation: isolate; }
+/* The ::after glow needs a positioned ancestor, but [data-spot] is applied by
+   JS to elements that may already position themselves — the map nodes are
+   absolute, and knocking them back to relative drops them into flow, where
+   their offsets accumulate down the page. :where() gives this declaration zero
+   specificity, so an element's own `position` always wins and only elements
+   with none fall back to relative. */
+:where([data-spot]) { position: relative; }
+[data-spot] { isolation: isolate; }
 [data-spot]::after {
   content: "";
   position: absolute;
