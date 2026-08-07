@@ -5,6 +5,11 @@
   "use strict";
 
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // Only genuinely touch-only devices are "coarse". Testing (hover: none)
+  // alone is too blunt — it is also true wherever no input device is attached
+  // yet, and false-negatives there would silently disable the pointer effects.
+  var coarse = window.matchMedia("(pointer: coarse)").matches &&
+               !window.matchMedia("(any-hover: hover)").matches;
 
   // Arms the reveal animation only when scripting is available.
   document.documentElement.classList.add("has-js");
@@ -118,33 +123,36 @@
     { id: "twitch",    x: 862, y: 182, w: 140, h: 76 }
   ];
 
-  var P = "#b49af0", G = "#5fce93", GH = "#8ff0bd";
-
   /* smooth cubic with horizontal tangents between exact node anchor points */
   function C(x1, y1, x2, y2) {
     var dx = (x2 - x1) * 0.45;
     return "M " + x1 + " " + y1 + " C " + (x1 + dx) + " " + y1 + ", " + (x2 - dx) + " " + y2 + ", " + x2 + " " + y2;
   }
 
+  /* base: which stroke class the idle edge uses.
+     tone: which direction the traffic runs — commands out, telemetry back.
+     Both resolve to CSS custom properties, so a theme swap needs no repaint
+     pass here at all. */
   var EDGES = [
-    { d: C(292, 142, 583, 176), stroke: "#56534d", dash: "6 6", speed: "1.1s",  marker: "url(#arr)",    on: ["scenedeck"], hlColor: P, hlMarker: "url(#arrHl)" },
-    { d: C(292, 228, 583, 198), stroke: "#56534d", dash: "6 6", speed: "1.1s",  marker: "url(#arr)",    on: ["obsctl-rs"], hlColor: P, hlMarker: "url(#arrHl)" },
-    { d: C(292, 314, 583, 220), stroke: "#56534d", dash: "6 6", speed: "1.1s",  marker: "url(#arr)",    on: ["obsctl"],    hlColor: P, hlMarker: "url(#arrHl)" },
-    { d: C(292, 400, 583, 242), stroke: "#56534d", dash: "3 5", speed: "1.1s",  marker: "url(#arr)",    on: ["obs-stats"], hlColor: P, hlMarker: "url(#arrHl)" },
-    { d: C(583, 256, 326, 428), stroke: "#3d6b52", dash: "6 6", speed: "1.3s", reverse: true, marker: "url(#arrCap)", on: ["obs", "scenedeck", "obsctl-rs", "obsctl", "obs-stats"], hlColor: G, hlMarker: "url(#arrCap)" },
-    { d: C(787, 214, 858, 212), stroke: "#56534d", dash: "7 5", speed: "1.1s",  marker: "url(#arr)",    on: ["obs", "twitch"], hlColor: P, hlMarker: "url(#arrHl)" },
-    { d: "M 292 490 C 620 496, 932 420, 932 268", stroke: "#56534d", dash: "6 6", speed: "2s", marker: "url(#arr)", on: ["twi", "twitch"], hlColor: P, hlMarker: "url(#arrHl)" },
-    { d: "M 326 90 C 420 54, 470 58, 556 102",    stroke: "#3d6b52", dash: "3 4", speed: "2s", marker: "url(#arrCap)", on: ["obs"], hlColor: G, hlMarker: "url(#arrCap)" }
+    { d: C(292, 142, 583, 176), base: "cmd", dash: "6 6", speed: "1.1s",  marker: "url(#arr)",    on: ["scenedeck"], tone: "cmd", hlMarker: "url(#arrHl)" },
+    { d: C(292, 228, 583, 198), base: "cmd", dash: "6 6", speed: "1.1s",  marker: "url(#arr)",    on: ["obsctl-rs"], tone: "cmd", hlMarker: "url(#arrHl)" },
+    { d: C(292, 314, 583, 220), base: "cmd", dash: "6 6", speed: "1.1s",  marker: "url(#arr)",    on: ["obsctl"],    tone: "cmd", hlMarker: "url(#arrHl)" },
+    { d: C(292, 400, 583, 242), base: "cmd", dash: "3 5", speed: "1.1s",  marker: "url(#arr)",    on: ["obs-stats"], tone: "cmd", hlMarker: "url(#arrHl)" },
+    { d: C(583, 256, 326, 428), base: "cap", dash: "6 6", speed: "1.3s", reverse: true, marker: "url(#arrCap)", on: ["obs", "scenedeck", "obsctl-rs", "obsctl", "obs-stats"], tone: "tel", hlMarker: "url(#arrCap)" },
+    { d: C(787, 214, 858, 212), base: "cmd", dash: "7 5", speed: "1.1s",  marker: "url(#arr)",    on: ["obs", "twitch"], tone: "cmd", hlMarker: "url(#arrHl)" },
+    { d: "M 292 490 C 620 496, 932 420, 932 268", base: "cmd", dash: "6 6", speed: "2s", marker: "url(#arr)", on: ["twi", "twitch"], tone: "cmd", hlMarker: "url(#arrHl)" },
+    { d: "M 326 90 C 420 54, 470 58, 556 102",    base: "cap", dash: "3 4", speed: "2s", marker: "url(#arrCap)", on: ["obs"], tone: "tel", hlMarker: "url(#arrCap)" }
   ];
 
+  /* tone picks the resting colour; paintLabels only toggles .is-on. */
   var LABELS = {
-    ws:   { on: ["scenedeck", "obsctl-rs", "obsctl", "obs"], base: "#9a968e", hl: P },
-    cmd:  { on: ["scenedeck", "obsctl-rs", "obsctl"],        base: "#6f6b63", hl: P },
-    mon:  { on: ["obs-stats"],                                base: "#6f6b63", hl: P },
-    tel:  { on: ["obs", "scenedeck", "obsctl-rs", "obsctl", "obs-stats"], base: "#5fce93", hl: GH },
-    rtmp: { on: ["obs", "twitch"],                            base: "#9a968e", hl: P },
-    chat: { on: ["twi", "twitch"],                            base: "#9a968e", hl: P },
-    cap:  { on: ["obs"],                                      base: "#5fce93", hl: GH }
+    ws:   { on: ["scenedeck", "obsctl-rs", "obsctl", "obs"], tone: "loud" },
+    cmd:  { on: ["scenedeck", "obsctl-rs", "obsctl"],        tone: "quiet" },
+    mon:  { on: ["obs-stats"],                               tone: "quiet" },
+    tel:  { on: ["obs", "scenedeck", "obsctl-rs", "obsctl", "obs-stats"], tone: "cap" },
+    rtmp: { on: ["obs", "twitch"],                           tone: "loud" },
+    chat: { on: ["twi", "twitch"],                           tone: "loud" },
+    cap:  { on: ["obs"],                                     tone: "cap" }
   };
 
   var SVG_NS = "http://www.w3.org/2000/svg";
@@ -204,7 +212,8 @@
         btn.appendChild(live);
       }
 
-      btn.addEventListener("click", function () { select(g.id); });
+      btn.style.setProperty("--i", String(GEO.indexOf(g)));
+      btn.addEventListener("click", function () { select(g.id, btn); });
       nodeHost.appendChild(btn);
     });
   }
@@ -214,7 +223,7 @@
       var p = document.createElementNS(SVG_NS, "path");
       p.setAttribute("d", e.d);
       p.setAttribute("fill", "none");
-      p.setAttribute("stroke", e.stroke);
+      p.setAttribute("class", e.base === "cap" ? "edge-cap" : "edge-base");
       p.setAttribute("stroke-width", "1.4");
       p.setAttribute("stroke-dasharray", e.dash);
       p.setAttribute("marker-end", e.marker);
@@ -225,24 +234,115 @@
     });
   }
 
+  var packetLayer = document.getElementById("edges-packets");
+  var packets = [];
+  var packetRaf = null;
+  var packetLast = 0;
+
   function drawHighlights() {
     hlLayer.textContent = "";
-    EDGES.filter(function (e) { return e.on.indexOf(sel) !== -1; }).forEach(function (e) {
+    var live = EDGES.filter(function (e) { return e.on.indexOf(sel) !== -1; });
+
+    live.forEach(function (e) {
       var p = document.createElementNS(SVG_NS, "path");
       p.setAttribute("d", e.d);
       p.setAttribute("fill", "none");
-      p.setAttribute("stroke", e.hlColor);
+      p.setAttribute("class", e.tone === "tel" ? "hl-tel" : "hl-cmd");
       p.setAttribute("stroke-width", "2.2");
       p.setAttribute("marker-end", e.hlMarker);
+      // CSS supplies stroke and currentColor (the glow); --len drives draw-in.
       hlLayer.appendChild(p);
+
+      if (!reduceMotion) {
+        var len = pathLength(p);
+        if (len) p.style.setProperty("--len", len.toFixed(1));
+      }
     });
+
+    buildPackets(live);
   }
+
+  // getTotalLength throws in a few hardened browsers when the SVG is detached
+  // or zero-sized. A missing length just means no draw-in, not a broken map.
+  function pathLength(p) {
+    try { return p.getTotalLength(); } catch (err) { return 0; }
+  }
+
+  /* One dot per highlighted edge, riding the curve in the direction the data
+     actually travels — commands out, telemetry back. */
+  function buildPackets(live) {
+    if (!packetLayer) return;
+    packetLayer.textContent = "";
+    packets.length = 0;
+
+    if (reduceMotion) return stopPackets();
+
+    Array.prototype.forEach.call(hlLayer.children, function (path, i) {
+      var len = pathLength(path);
+      if (!len) return;
+      var e = live[i];
+      var dot = document.createElementNS(SVG_NS, "circle");
+      dot.setAttribute("r", "3.4");
+      dot.setAttribute("class", "map-packet " + (e.tone === "tel" ? "pk-tel" : "pk-cmd"));
+      packetLayer.appendChild(dot);
+      packets.push({
+        path: path,
+        len: len,
+        el: dot,
+        t: (i * 0.27) % 1,
+        speed: 0.17 + (i % 3) * 0.035,
+        rev: !!e.reverse
+      });
+    });
+
+    if (packets.length) startPackets(); else stopPackets();
+  }
+
+  function stepPackets(now) {
+    // rAF hands back the frame's start time, which can predate the clock read
+    // in startPackets — clamp so a negative delta never walks a dot backwards.
+    var dt = Math.max(0, Math.min(0.05, (now - packetLast) / 1000));
+    packetLast = now;
+
+    if (!document.hidden) {
+      for (var i = 0; i < packets.length; i++) {
+        var pk = packets[i];
+        pk.t += dt * pk.speed;
+        if (pk.t > 1) pk.t -= 1;
+        var at = pk.rev ? 1 - pk.t : pk.t;
+        var pt;
+        try { pt = pk.path.getPointAtLength(at * pk.len); } catch (err) { continue; }
+        pk.el.setAttribute("cx", pt.x);
+        pk.el.setAttribute("cy", pt.y);
+        // fade in and out at the ends so dots do not pop at the nodes
+        var fade = Math.max(0, Math.min(1, Math.sin(pk.t * Math.PI) * 2.2));
+        pk.el.setAttribute("opacity", fade.toFixed(3));
+      }
+    }
+    packetRaf = requestAnimationFrame(stepPackets);
+  }
+
+  function startPackets() {
+    if (packetRaf) return;
+    packetLast = performance.now();
+    packetRaf = requestAnimationFrame(stepPackets);
+  }
+
+  function stopPackets() {
+    if (!packetRaf) return;
+    cancelAnimationFrame(packetRaf);
+    packetRaf = null;
+  }
+
+  window.addEventListener("pagehide", stopPackets);
 
   function paintLabels() {
     Object.keys(LABELS).forEach(function (key) {
       var cfg = LABELS[key];
       var el = document.querySelector('.map-lab[data-lab="' + key + '"]');
-      if (el) el.style.color = cfg.on.indexOf(sel) !== -1 ? cfg.hl : cfg.base;
+      if (!el) return;
+      el.setAttribute("data-tone", cfg.tone);
+      el.classList.toggle("is-on", cfg.on.indexOf(sel) !== -1);
     });
   }
 
@@ -401,12 +501,37 @@
     paintInstall(d);
   }
 
-  function select(id) {
+  var detailPanel = document.querySelector(".detail");
+
+  function select(id, originEl) {
+    var changed = sel !== id;
     sel = id;
     paintNodes();
     drawHighlights();
     paintLabels();
     paintDetail();
+
+    if (reduceMotion || !changed) return;
+
+    // Wipe the panel's top rule and re-run the body entrance.
+    if (detailPanel) {
+      detailPanel.classList.remove("is-swapping");
+      void detailPanel.offsetWidth;                       // restart the animation
+      detailPanel.classList.add("is-swapping");
+      [elName, elDesc, elChips, elConnects].forEach(function (el) {
+        if (!el) return;
+        el.classList.remove("detail-body-anim");
+        void el.offsetWidth;
+        el.classList.add("detail-body-anim");
+      });
+    }
+
+    // Ripple out of the node you clicked, in the colour of its traffic.
+    if (originEl && window.WB_BG && window.WB_BG.ready) {
+      var r = originEl.getBoundingClientRect();
+      window.WB_BG.pulse(r.left + r.width / 2, r.top + r.height / 2,
+                         id === "obs" || id === "twitch" ? "green" : "purple");
+    }
   }
 
   /* -------------------------------------------------------- idea carousel */
@@ -471,124 +596,147 @@
     ideaPaused = document.hidden;
   });
 
-  /* ------------------------------------------------- background icosphere */
+  /* ------------------------------------------------------- background */
+
+  /* The engine is a separate module (assets/bg.js) that owns one canvas and
+     nothing else. It starts on Canvas2D straight away — small, no dependency —
+     and upgrades itself to the WebGL renderer once PixiJS has loaded, keeping
+     the running simulation. Every step is optional: if bg.js will not load the
+     page simply has no background, and if PixiJS will not load the Canvas2D
+     renderer keeps going. */
 
   function startBackground() {
-    var canvas = document.getElementById("bg-canvas");
-    if (!canvas) return;
+    var host = document.getElementById("background-canvas");
+    if (!host) return;
+    if (reduceMotion) { host.parentNode.removeChild(host); return; }
 
-    // Canvas can be blocked or throw outright (Firefox resistFingerprinting,
-    // privacy extensions). It is decoration — never let it break the page.
-    var ctx = null;
-    try { ctx = canvas.getContext("2d"); } catch (e) { ctx = null; }
-    if (!ctx) { canvas.style.display = "none"; return; }
+    loadScript("assets/bg.js")
+      .then(function () {
+        if (!window.WB_BG) throw new Error("background module missing");
+        var ok = window.WB_BG.start({ host: host });
+        if (!ok) throw new Error("no renderer available");
+        document.documentElement.classList.add("fx-live");
+        upgradeRenderer();
+      })
+      .catch(function (err) {
+        if (window.console && console.warn) console.warn("[worxbend] background unavailable:", err);
+        if (host.parentNode) host.parentNode.removeChild(host);
+      });
+  }
 
-    var t = (1 + Math.sqrt(5)) / 2;
-    var verts = [
-      [-1, t, 0], [1, t, 0], [-1, -t, 0], [1, -t, 0],
-      [0, -1, t], [0, 1, t], [0, -1, -t], [0, 1, -t],
-      [t, 0, -1], [t, 0, 1], [-t, 0, -1], [-t, 0, 1]
-    ].map(function (v) {
-      var l = Math.hypot(v[0], v[1], v[2]);
-      return v.map(function (c) { return c / l; });
-    });
+  // Only worth the PixiJS download on a machine that will actually enjoy it.
+  function wantsWebGL() {
+    if (reduceMotion) return false;
+    if (window.innerWidth < 760) return false;
+    var conn = navigator.connection;
+    if (conn && (conn.saveData || /2g/.test(conn.effectiveType || ""))) return false;
+    if ((navigator.deviceMemory || 8) < 4) return false;
+    if ((navigator.hardwareConcurrency || 8) < 4) return false;
+    try {
+      var c = document.createElement("canvas");
+      return !!(c.getContext("webgl2") || c.getContext("webgl"));
+    } catch (e) {
+      return false;
+    }
+  }
 
-    var faces = [
-      [0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],[1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],
-      [3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],[4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]
-    ];
+  function upgradeRenderer() {
+    if (!wantsWebGL()) return;
 
-    var midCache = {};
-    function mid(a, b) {
-      var k = a < b ? a + "_" + b : b + "_" + a;
-      if (midCache[k] !== undefined) return midCache[k];
-      var m = [
-        (verts[a][0] + verts[b][0]) / 2,
-        (verts[a][1] + verts[b][1]) / 2,
-        (verts[a][2] + verts[b][2]) / 2
-      ];
-      var l = Math.hypot(m[0], m[1], m[2]);
-      verts.push(m.map(function (c) { return c / l; }));
-      midCache[k] = verts.length - 1;
-      return midCache[k];
+    function kick() {
+      loadScript("assets/vendor/pixi.min.js")
+        .then(function () {
+          if (!window.PIXI) throw new Error("PIXI global missing");
+          return window.WB_BG.useWebGL(window.PIXI);
+        })
+        .then(function () {
+          document.documentElement.classList.add("fx-webgl");
+        })
+        .catch(function (err) {
+          // Canvas2D is already on screen and stays there.
+          if (window.console && console.warn) console.warn("[worxbend] webgl renderer declined:", err);
+        });
     }
 
-    var f2 = [];
-    faces.forEach(function (f) {
-      var a = f[0], b = f[1], c = f[2];
-      var ab = mid(a, b), bc = mid(b, c), ca = mid(c, a);
-      f2.push([a, ab, ca], [b, bc, ab], [c, ca, bc], [ab, bc, ca]);
-    });
-    faces = f2;
+    // Never compete with first paint or the reveal pass.
+    if ("requestIdleCallback" in window) window.requestIdleCallback(kick, { timeout: 2600 });
+    else setTimeout(kick, 900);
+  }
 
-    var edgeSet = {};
-    faces.forEach(function (f) {
-      [[f[0], f[1]], [f[1], f[2]], [f[2], f[0]]].forEach(function (pr) {
-        var p = pr[0], q = pr[1];
-        edgeSet[p < q ? p + "_" + q : q + "_" + p] = true;
-      });
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = src;
+      s.async = true;
+      s.onload = function () { resolve(); };
+      s.onerror = function () { reject(new Error("could not load " + src)); };
+      document.head.appendChild(s);
     });
-    var edges = Object.keys(edgeSet).map(function (k) {
-      return k.split("_").map(Number);
-    });
+  }
 
-    var raf, rot = 0, last = performance.now();
+  /* ------------------------------------------------------------ theming */
 
-    function draw(now) {
-      try { paint(now); } catch (e) { cancelAnimationFrame(raf); canvas.style.display = "none"; return; }
-      raf = requestAnimationFrame(draw);
+  var THEME_KEY = "worxbend-theme";
+
+  function storedTheme() {
+    try { return localStorage.getItem(THEME_KEY); } catch (e) { return null; }
+  }
+
+  function storeTheme(value) {
+    try { localStorage.setItem(THEME_KEY, value); } catch (e) { /* private mode */ }
+  }
+
+  function currentTheme() {
+    return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+  }
+
+  function applyTheme(theme, animate) {
+    var root = document.documentElement;
+    root.setAttribute("data-theme", theme);
+
+    // A short window of colour transitions, then off again — leaving them on
+    // would make every hover on every panel fade instead of respond.
+    if (animate && !reduceMotion) {
+      root.classList.add("theme-shift");
+      clearTimeout(applyTheme.timer);
+      applyTheme.timer = setTimeout(function () {
+        root.classList.remove("theme-shift");
+      }, 420);
     }
 
-    function paint(now) {
-      var dt = Math.min(50, now - last);
-      last = now;
-      if (!reduceMotion) rot += dt * 0.00006;
+    var btn = document.getElementById("theme-toggle");
+    if (btn) {
+      var next = theme === "light" ? "dark" : "light";
+      btn.setAttribute("aria-pressed", theme === "light" ? "true" : "false");
+      btn.setAttribute("aria-label", "Switch to " + next + " theme");
+    }
 
-      var dpr = Math.min(2, window.devicePixelRatio || 1);
-      var w = window.innerWidth, h = window.innerHeight;
-      if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
-        canvas.width = w * dpr;
-        canvas.height = h * dpr;
-      }
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, w, h);
+    // Everything that caches a colour re-reads it here.
+    if (window.WB_BG && window.WB_BG.refreshTheme) window.WB_BG.refreshTheme();
+    document.dispatchEvent(new CustomEvent("worxbend:theme", { detail: { theme: theme } }));
+  }
 
-      var cx = w * 0.8, cy = h * 0.34, R = Math.min(w, h) * 0.42;
-      var tilt = 0.42, cosT = Math.cos(tilt), sinT = Math.sin(tilt);
-      var cosR = Math.cos(rot), sinR = Math.sin(rot);
+  function initTheme() {
+    // The inline bootstrap in <head> already set the attribute; this only
+    // wires the control and keeps the OS preference live while unset.
+    applyTheme(currentTheme(), false);
 
-      var proj = verts.map(function (v) {
-        var x = v[0], y = v[1], z = v[2];
-        var x1 = x * cosR + z * sinR, z1 = -x * sinR + z * cosR;
-        var y2 = y * cosT - z1 * sinT, z2 = y * sinT + z1 * cosT;
-        var s = 2.6 / (2.6 + z2 * 0.9);
-        return [cx + x1 * R * s, cy + y2 * R * s, z2];
-      });
-
-      ctx.lineWidth = 1;
-      edges.forEach(function (e) {
-        var pa = proj[e[0]], pb = proj[e[1]];
-        var depth = (pa[2] + pb[2]) / 2;                       // -1 front .. 1 back
-        var alpha = 0.02 + Math.max(0, 0.55 - depth * 0.5) * 0.13;
-        ctx.strokeStyle = "rgba(180, 154, 240, " + alpha.toFixed(3) + ")";
-        ctx.beginPath();
-        ctx.moveTo(pa[0], pa[1]);
-        ctx.lineTo(pb[0], pb[1]);
-        ctx.stroke();
-      });
-
-      proj.forEach(function (p) {
-        if (p[2] > 0.2) return;
-        var a = 0.06 + (0.2 - p[2]) * 0.1;
-        ctx.fillStyle = "rgba(95, 206, 147, " + Math.min(0.3, a).toFixed(3) + ")";
-        ctx.beginPath();
-        ctx.arc(p[0], p[1], 1.4, 0, 6.284);
-        ctx.fill();
+    var btn = document.getElementById("theme-toggle");
+    if (btn) {
+      btn.addEventListener("click", function () {
+        var next = currentTheme() === "light" ? "dark" : "light";
+        storeTheme(next);
+        applyTheme(next, true);
       });
     }
 
-    raf = requestAnimationFrame(draw);
-    window.addEventListener("pagehide", function () { cancelAnimationFrame(raf); });
+    var mq = window.matchMedia("(prefers-color-scheme: dark)");
+    var onSystem = function (ev) {
+      if (storedTheme()) return;                 // an explicit choice wins
+      applyTheme(ev.matches ? "dark" : "light", true);
+    };
+    if (mq.addEventListener) mq.addEventListener("change", onSystem);
+    else if (mq.addListener) mq.addListener(onSystem);
   }
 
   /* ------------------------------------------------------------ tool cards */
@@ -598,27 +746,27 @@
   var CARD_ORDER = ["scenedeck", "obsctl-rs", "obsctl", "obs-stats", "twi"];
   var CARD_META = {
     scenedeck: {
-      accent: "#b49af0",
+      accent: "var(--acc-scenedeck)",
       short: "A native GTK4 control panel for the remote OBS — scenes, mixer, telemetry and diagnostics in one window.",
       feats: ["Role-filtered scene switching", "Mixer reaches into nested scenes", "Doctor diagnostics built in"]
     },
     "obsctl-rs": {
-      accent: "#8ab0f0",
+      accent: "var(--acc-obsctl-rs)",
       short: "One Rust binary that is a daemon, a TUI and a proxy CLI answering in milliseconds.",
       feats: ["Daemon owns the WebSocket link", "Ratatui TUI + 20 CLI commands", "29 themes, systemd --user service"]
     },
     obsctl: {
-      accent: "#5fce93",
+      accent: "var(--acc-obsctl)",
       short: "The same control-room idea in Crystal, with a daemon that shrugs off OBS restarts.",
       feats: ["Bounded reconnect backoff", "One JSON envelope per call", "Static musl builds, amd64 + arm64"]
     },
     "obs-stats": {
-      accent: "#e0b05c",
+      accent: "var(--acc-obs-stats)",
       short: "A btop-style health dashboard that tells you which frames are dropping, and why.",
       feats: ["GPU, encoder and network kept apart", "Desktop notification on first drop", "6 views, 24 themes"]
     },
     twi: {
-      accent: "#d98a8a",
+      accent: "var(--acc-twi)",
       short: "Twitch chat in a terminal pane — no browser tab, no Electron, no window stealing focus.",
       feats: ["Reads and sends over Twitch IRC", "Sits beside obs-stats in a split", "Stays on your workstation"]
     }
@@ -634,6 +782,9 @@
 
       var card = document.createElement("article");
       card.className = "tool-card reveal";
+      card.setAttribute("data-reveal", "stagger-self");
+      card.setAttribute("data-spot", "");
+      card.setAttribute("data-tilt", "");
       card.style.setProperty("--accent", meta.accent);
 
       var head = document.createElement("div");
@@ -683,7 +834,7 @@
       // The map now sits above the toolkit, so this scrolls back up.
       focus.textContent = "Show on map ↑";
       focus.addEventListener("click", function () {
-        select(id);
+        select(id, focus);
         var map = document.getElementById("map");
         if (map) map.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
       });
@@ -817,11 +968,29 @@
     // content invisible that the reader can already see.
     setTimeout(function () {
       if (!document.querySelector(".reveal.is-in")) return revealAll();
-      Array.prototype.forEach.call(document.querySelectorAll(".reveal:not(.is-in)"), function (el) {
-        var r = el.getBoundingClientRect();
-        if (r.top < window.innerHeight && r.bottom > 0) el.classList.add("is-in");
-      });
+      sweepReveals();
     }, 2500);
+
+    // A hard flick can carry an element past the viewport between two observer
+    // samples, which would strand it hidden. Sweep whatever the reader has
+    // already scrolled to, shortly after the scrolling stops.
+    var sweepTimer = null;
+    window.addEventListener("scroll", function () {
+      if (sweepTimer) clearTimeout(sweepTimer);
+      sweepTimer = setTimeout(sweepReveals, 260);
+    }, { passive: true });
+  }
+
+  // Reveals anything at or above the fold that the observer has not caught.
+  function sweepReveals() {
+    var pending = document.querySelectorAll(".reveal:not(.is-in)");
+    Array.prototype.forEach.call(pending, function (el) {
+      var r = el.getBoundingClientRect();
+      if (r.top >= window.innerHeight) return;         // still genuinely below
+      el.classList.add("is-in");
+      if (revealIO) revealIO.unobserve(el);
+      runScrambles(el);
+    });
   }
 
   // Observes any .reveal not already being watched. Must be called again after
@@ -831,7 +1000,26 @@
     var fresh = document.querySelectorAll(".reveal:not([data-rv])");
     Array.prototype.forEach.call(fresh, function (el, i) {
       el.setAttribute("data-rv", "1");
-      el.style.transitionDelay = Math.min(i % 6, 5) * 55 + "ms";  // stagger per row
+      var variant = el.getAttribute("data-reveal");
+
+      if (variant === "stagger") {
+        // Children cascade; the container itself does not move.
+        Array.prototype.forEach.call(el.children, function (child, k) {
+          child.style.setProperty("--i", String(k));
+        });
+      } else if (variant === "stagger-self") {
+        // Position among sibling reveals, so a grid row lands left to right.
+        var at = 0;
+        try {
+          var peers = el.parentNode.querySelectorAll(":scope > .reveal");
+          at = Array.prototype.indexOf.call(peers, el);
+        } catch (err) { at = 0; }
+        el.style.transitionDelay = Math.min(Math.max(at, 0), 7) * 65 + "ms";
+      } else {
+        el.style.transitionDelay = Math.min(i % 6, 5) * 55 + "ms";
+      }
+
+      if (el.hasAttribute("data-split")) splitWords(el);
       revealIO.observe(el);
     });
   }
@@ -842,9 +1030,363 @@
         if (!e.isIntersecting) return;
         e.target.classList.add("is-in");
         io.unobserve(e.target);
+        runScrambles(e.target);
       });
     }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
     return io;
+  }
+
+  /* ------------------------------------------------------ split headline */
+
+  // Wraps each top-level word in an overflow-clipped box so it can slide up
+  // from underneath. Inline elements (the accent span) move as one unit, which
+  // keeps their background-clip gradient intact.
+  function splitWords(el) {
+    if (el.getAttribute("data-split-done") === "1") return;
+    var parts = [];
+
+    Array.prototype.forEach.call(el.childNodes, function (node) {
+      if (node.nodeType === 3) {
+        node.nodeValue.split(/(\s+)/).forEach(function (chunk) {
+          if (!chunk) return;
+          if (/^\s+$/.test(chunk)) { parts.push(document.createTextNode(" ")); return; }
+          var box = document.createElement("span");
+          box.className = "split-word";
+          var inner = document.createElement("span");
+          inner.textContent = chunk;
+          box.appendChild(inner);
+          parts.push(box);
+        });
+      } else if (node.nodeType === 1) {
+        var wrap = document.createElement("span");
+        wrap.className = "split-word";
+        var hold = document.createElement("span");
+        hold.appendChild(node.cloneNode(true));
+        wrap.appendChild(hold);
+        parts.push(wrap);
+      }
+    });
+
+    el.textContent = "";
+    var idx = 0;
+    parts.forEach(function (p) {
+      if (p.nodeType === 1) {
+        p.firstChild.style.setProperty("--i", String(idx++));
+      }
+      el.appendChild(p);
+    });
+    el.setAttribute("data-split-done", "1");
+  }
+
+  /* ---------------------------------------------------------- scramble */
+
+  var SCRAMBLE_POOL = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&*+/<>_";
+
+  function runScrambles(root) {
+    if (reduceMotion) return;
+    var targets = root.matches && root.matches("[data-scramble]")
+      ? [root]
+      : Array.prototype.slice.call(root.querySelectorAll("[data-scramble]"));
+    targets.forEach(scramble);
+  }
+
+  // Mono labels resolve character by character, like a terminal settling.
+  function scramble(el) {
+    if (el.getAttribute("data-scrambled") === "1") return;
+    el.setAttribute("data-scrambled", "1");
+
+    var text = el.textContent;
+    var n = text.length;
+    if (!n) return;
+    var dur = 340 + n * 16;
+    var t0 = performance.now();
+
+    (function frame(now) {
+      var p = Math.min(1, (now - t0) / dur);
+      var settled = p * n * 1.3;
+      var out = "";
+      for (var i = 0; i < n; i++) {
+        var ch = text.charAt(i);
+        if (i < settled || ch === " " || ch === "·") out += ch;
+        else out += SCRAMBLE_POOL.charAt((Math.random() * SCRAMBLE_POOL.length) | 0);
+      }
+      el.textContent = out;
+      if (p < 1) requestAnimationFrame(frame);
+      else el.textContent = text;
+    })(t0);
+  }
+
+  /* ------------------------------------------------- pointer-led effects */
+
+  /* ------------------------------------------------- the travelling light */
+
+  // Everything the light touches — background layer, widget surfaces, chrome —
+  // reads one set of custom properties on :root. Nothing reads the raw cursor:
+  // three followers chase it at different rates, so the glow arrives a beat
+  // after the pointer and keeps sliding for a moment once it stops.
+  var LIT_SELECTOR = [
+    ".tool-card", ".why-card", ".stat", ".step", ".faq-item", ".win",
+    ".demo-win", ".map-frame", ".map-node", ".detail", ".cmd-box", ".idea-link"
+  ].join(",");
+
+  // Palette the light cycles through as it travels. Sourced from the theme's
+  // --fx-* tokens so the light recolours with the rest of the page.
+  var LIGHT_STOPS = [
+    [180, 154, 240], [138, 176, 240], [95, 206, 147], [143, 240, 189], [205, 187, 247]
+  ];
+
+  function readLightStops() {
+    var cs = getComputedStyle(document.documentElement);
+    ["--fx-c1", "--fx-c2", "--fx-c3", "--fx-c4", "--fx-c5"].forEach(function (name, i) {
+      var raw = cs.getPropertyValue(name).trim();
+      if (!raw) return;
+      var parts = raw.split(/[\s,]+/).map(Number);
+      if (parts.length === 3 && !parts.some(isNaN)) LIGHT_STOPS[i] = parts;
+    });
+  }
+
+  function stopAt(phase) {
+    var n = LIGHT_STOPS.length;
+    var f = ((phase % n) + n) % n;
+    var i = Math.floor(f), t = f - i;
+    var a = LIGHT_STOPS[i], b = LIGHT_STOPS[(i + 1) % n];
+    // smoothstep between stops so the colour never steps
+    var k = t * t * (3 - 2 * t);
+    return Math.round(a[0] + (b[0] - a[0]) * k) + " " +
+           Math.round(a[1] + (b[1] - a[1]) * k) + " " +
+           Math.round(a[2] + (b[2] - a[2]) * k);
+  }
+
+  function initSpotlight() {
+    if (coarse || reduceMotion) return;
+
+    var root = document.documentElement;
+    readLightStops();
+    document.addEventListener("worxbend:theme", function () {
+      readLightStops();
+      c1 = "";                       // force a colour write on the next frame
+      wake();
+    });
+    var W = window.innerWidth, H = window.innerHeight;
+
+    // One source of truth: the light only paints once this driver is running.
+    root.classList.add("has-pointer");
+
+    // Mark every widget the light should wash over, then let CSS do the rest.
+    Array.prototype.forEach.call(document.querySelectorAll(LIT_SELECTOR), markLit);
+
+    var raw = { x: W * 0.5, y: H * 0.4 };
+    var f1 = { x: raw.x, y: raw.y };
+    var f2 = { x: raw.x, y: raw.y };
+    var f3 = { x: raw.x, y: raw.y };
+
+    var phase = 0, on = 0, want = 0, heat = 0, seen = false;
+    var raf = null, last = 0, current = null;
+    var tint = 0, litClock = 0, c1 = "", c2 = "", c3 = "";
+    var longFrames = 0, lite = false;
+
+    function wake() {
+      if (raf) return;
+      last = performance.now();
+      raf = requestAnimationFrame(step);
+    }
+
+    window.addEventListener("pointermove", function (ev) {
+      raw.x = ev.clientX;
+      raw.y = ev.clientY;
+      if (!seen) {                    // first sighting: start from under the cursor
+        seen = true;
+        f1.x = f2.x = f3.x = raw.x;
+        f1.y = f2.y = f3.y = raw.y;
+      }
+      want = 1;
+      wake();
+    }, { passive: true });
+
+    window.addEventListener("pointerdown", function () { heat = Math.min(1.6, heat + 0.8); wake(); }, { passive: true });
+    document.addEventListener("pointerleave", function () { want = 0; wake(); });
+    window.addEventListener("blur", function () { want = 0; wake(); });
+    window.addEventListener("resize", function () { W = window.innerWidth; H = window.innerHeight; }, { passive: true });
+
+    function ease(pt, to, dt, k) {
+      var a = 1 - Math.exp(-k * dt);      // frame-rate independent damping
+      pt.x += (to.x - pt.x) * a;
+      pt.y += (to.y - pt.y) * a;
+    }
+
+    function step(now) {
+      var raw_dt = now - last;
+      var dt = Math.max(0.001, Math.min(0.05, raw_dt / 1000));
+      last = now;
+
+      // This loop only runs while the pointer is moving, which is exactly when
+      // the effect costs the most — so it is the right place to notice a
+      // machine that cannot keep up and shed the two most expensive layers.
+      if (!lite) {
+        longFrames = raw_dt > 26 ? longFrames + 1 : Math.max(0, longFrames - 1);
+        if (longFrames > 70) {
+          lite = true;
+          root.classList.add("fx-lite");
+        }
+      }
+
+      var before = f1.x, beforeY = f1.y;
+      ease(f1, raw, dt, 11);
+      ease(f2, f1, dt, 4.6);
+      ease(f3, f2, dt, 2.1);
+
+      // Speed drives both the colour cycle and how hot the core burns.
+      var moved = Math.hypot(f1.x - before, f1.y - beforeY);
+      var speed = Math.min(1, moved / (dt * 1400));
+      heat += (speed - heat) * Math.min(1, dt * 5);
+      heat = Math.max(0, heat - dt * 0.15);
+      phase += moved * 0.0016 + dt * 0.06;
+
+      on += (want - on) * Math.min(1, dt * 3.2);
+
+      // Position and opacity are composited, so they run every frame.
+      root.style.setProperty("--pt-x", f1.x.toFixed(1) + "px");
+      root.style.setProperty("--pt-y", f1.y.toFixed(1) + "px");
+      root.style.setProperty("--pt2-x", f2.x.toFixed(1) + "px");
+      root.style.setProperty("--pt2-y", f2.y.toFixed(1) + "px");
+      root.style.setProperty("--pt3-x", f3.x.toFixed(1) + "px");
+      root.style.setProperty("--pt3-y", f3.y.toFixed(1) + "px");
+      root.style.setProperty("--pt-on", on.toFixed(3));
+      root.style.setProperty("--pt-heat", Math.min(1, heat).toFixed(3));
+
+      // Colour does repaint, and the palette drifts far slower than the
+      // pointer moves — 12 Hz is indistinguishable and a fraction of the cost.
+      tint += dt;
+      if (tint > 0.08 || !c1) {
+        tint = 0;
+        c1 = stopAt(phase);
+        c2 = stopAt(phase + 0.9);
+        c3 = stopAt(phase + 2.1);
+        root.style.setProperty("--pt-c1", c1);
+        root.style.setProperty("--pt-c2", c2);
+        root.style.setProperty("--pt-c3", c3);
+      }
+
+      // Repainting the widget under the light is the one unavoidable cost;
+      // half rate is plenty when the sheen is trailing anyway.
+      litClock += dt;
+      if (litClock > 0.032) {
+        litClock = 0;
+        paintLit(f2.x, f2.y, on);
+      }
+
+      // Sleep once the followers have caught up and the fade has settled.
+      var slack = Math.abs(raw.x - f1.x) + Math.abs(raw.y - f1.y) +
+                  Math.abs(f1.x - f2.x) + Math.abs(f1.y - f2.y) +
+                  Math.abs(f2.x - f3.x) + Math.abs(f2.y - f3.y);
+      if (slack < 0.6 && Math.abs(want - on) < 0.004 && heat < 0.01) {
+        raf = null;
+        return;
+      }
+      raf = requestAnimationFrame(step);
+    }
+
+    // Only the widget under the *lagging* point is updated, so this stays one
+    // hit test and one style write per frame however many widgets exist.
+    function paintLit(x, y, level) {
+      var hit = null;
+      if (level > 0.02) {
+        var under = document.elementFromPoint(x, y);
+        hit = under && under.closest ? under.closest("[data-spot]") : null;
+      }
+      if (hit !== current) {
+        if (current) current.classList.remove("is-lit");
+        current = hit;
+        if (current) current.classList.add("is-lit");
+      }
+      if (!current) return;
+      var r = current.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      current.style.setProperty("--mx", (((x - r.left) / r.width) * 100).toFixed(1) + "%");
+      current.style.setProperty("--my", (((y - r.top) / r.height) * 100).toFixed(1) + "%");
+    }
+
+    wake();
+  }
+
+  // Widgets need a marker attribute plus a child for the edge hairline; the
+  // surface glow itself rides on ::after.
+  function markLit(el) {
+    if (el.getAttribute("data-lit") === "1") return;
+    el.setAttribute("data-lit", "1");
+    el.setAttribute("data-spot", "");
+    var edge = document.createElement("span");
+    edge.className = "lit-edge";
+    edge.setAttribute("aria-hidden", "true");
+    el.appendChild(edge);
+  }
+
+  function initTilt() {
+    if (coarse || reduceMotion) return;
+    Array.prototype.forEach.call(document.querySelectorAll("[data-tilt]"), function (el) {
+      var raf = null, rx = 0, ry = 0;
+
+      el.addEventListener("pointermove", function (ev) {
+        var r = el.getBoundingClientRect();
+        rx = (((ev.clientY - r.top) / r.height) - 0.5) * -5.5;
+        ry = (((ev.clientX - r.left) / r.width) - 0.5) * 5.5;
+        if (raf) return;
+        raf = requestAnimationFrame(function () {
+          raf = null;
+          el.classList.add("tilt-on");
+          el.style.transform =
+            "perspective(900px) rotateX(" + rx.toFixed(2) + "deg) rotateY(" + ry.toFixed(2) +
+            "deg) translate3d(0,-4px,0)";
+        });
+      }, { passive: true });
+
+      el.addEventListener("pointerleave", function () {
+        if (raf) { cancelAnimationFrame(raf); raf = null; }
+        el.classList.remove("tilt-on");
+        el.style.transform = "";
+      });
+    });
+  }
+
+  function initMagnet() {
+    if (coarse || reduceMotion) return;
+    Array.prototype.forEach.call(document.querySelectorAll("[data-magnet]"), function (el) {
+      el.addEventListener("pointermove", function (ev) {
+        var r = el.getBoundingClientRect();
+        var dx = ((ev.clientX - (r.left + r.width / 2)) / r.width) * 10;
+        var dy = ((ev.clientY - (r.top + r.height / 2)) / r.height) * 6;
+        el.style.transform = "translate3d(" + dx.toFixed(2) + "px," + dy.toFixed(2) + "px,0)";
+      }, { passive: true });
+      el.addEventListener("pointerleave", function () { el.style.transform = ""; });
+    });
+  }
+
+  /* ------------------------------------------------------------- ticker */
+
+  var TICKER = [
+    "OBS-WEBSOCKET 5.X", "127.0.0.1:4455", "SCENES", "AUDIO MIXER", "TELEMETRY",
+    "RUST", "CRYSTAL", "RATATUI", "GTK4", "TWITCH IRC", "STATIC MUSL BUILDS",
+    "JSON ENVELOPES", "HONEST EXIT CODES", "0 ELECTRON APPS", "MIT LICENSED"
+  ];
+  var TICKER_HOT = { "0 ELECTRON APPS": 1, TELEMETRY: 1, "MIT LICENSED": 1 };
+
+  function buildTicker() {
+    var track = document.getElementById("ticker-track");
+    if (!track) return;
+
+    // Two identical runs so the -50% loop is seamless.
+    for (var pass = 0; pass < 2; pass++) {
+      TICKER.forEach(function (word) {
+        var item = document.createElement("span");
+        item.className = "ticker-item" + (TICKER_HOT[word] ? " hot" : "");
+        var sep = document.createElement("span");
+        sep.className = "sep";
+        sep.textContent = "◆";
+        item.appendChild(sep);
+        item.appendChild(document.createTextNode(word));
+        track.appendChild(item);
+      });
+    }
   }
 
   function initCounters() {
@@ -885,10 +1427,15 @@
   }
 
   function initChrome() {
-    var bar = document.getElementById("scroll-progress");
+    var bar = document.querySelector(".scroll-progress-bar");
     var toTop = document.getElementById("to-top");
+    var ring = document.getElementById("to-top-val");
+    var header = document.getElementById("header-bar");
     var links = document.querySelectorAll('#nav a[href^="#"]');
     var ticking = false;
+    var RING = 2 * Math.PI * 16;
+
+    if (ring) ring.setAttribute("stroke-dasharray", RING.toFixed(2));
 
     function onScroll() {
       if (ticking) return;
@@ -896,8 +1443,11 @@
       requestAnimationFrame(function () {
         var h = document.documentElement.scrollHeight - window.innerHeight;
         var y = window.scrollY || window.pageYOffset;
-        if (bar) bar.style.width = (h > 0 ? (y / h) * 100 : 0) + "%";
+        var p = h > 0 ? Math.min(1, Math.max(0, y / h)) : 0;
+        if (bar) bar.style.width = (p * 100) + "%";
+        if (ring) ring.setAttribute("stroke-dashoffset", (RING * (1 - p)).toFixed(2));
         if (toTop) toTop.classList.toggle("is-on", y > 700);
+        if (header) header.classList.toggle("is-stuck", y > 12);
         ticking = false;
       });
     }
@@ -944,8 +1494,12 @@
     }
   }
 
-  // Reveal first — everything after this point is enhancement.
+  // Theme first: it decides the colours everything below reads.
+  safe("theme", initTheme);
+
+  // Reveal next — everything after this point is enhancement.
   safe("reveal", initReveal);
+  safe("ticker", buildTicker);
   safe("map", function () { buildNodes(); buildBaseEdges(); });
   safe("cards", buildToolCards);
   safe("detail", function () { select(sel); });
@@ -953,8 +1507,13 @@
   safe("chrome", initChrome);
   safe("counters", initCounters);
   safe("demo", startDemo);
-  safe("background", startBackground);
 
-  // Pick up .reveal elements rendered by the builders above.
+  // Pick up .reveal elements rendered by the builders above, then arm the
+  // pointer effects on everything that now exists.
   safe("reveal-rescan", revealScan);
+  safe("spotlight", initSpotlight);
+  safe("tilt", initTilt);
+  safe("magnet", initMagnet);
+
+  safe("background", startBackground);
 })();

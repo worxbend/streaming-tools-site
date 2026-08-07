@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>worxbend — streaming tools map</title>
 <meta name="description" content="Five small, sharp, open-source utilities for OBS Studio and Twitch — built in Rust and Crystal, terminal-first, no Electron in sight.">
-<meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#0f1012">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0f1012" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f5f3ee" media="(prefers-color-scheme: light)">
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="worxbend — streaming tools map">
@@ -18,35 +19,74 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css">
+
+<!-- Resolve the theme before the first paint, so a light-theme visitor never
+     sees a dark flash. Deliberately inline and tiny; app.js owns the toggle. -->
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem("worxbend-theme");
+    var dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    var theme = saved === "light" || saved === "dark" ? saved : (dark ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  } catch (e) {
+    document.documentElement.setAttribute("data-theme", "dark");
+  }
+})();
+</script>
 </head>
 <body>
 
-<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
-<canvas id="bg-canvas" aria-hidden="true"></canvas>
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"><span class="scroll-progress-bar"></span></div>
+
+<!-- The background engine owns this host and nothing else. It renders with
+     Canvas2D immediately, then swaps in a WebGL renderer once PixiJS loads. -->
+<div id="background-canvas" aria-hidden="true"></div>
+<div class="fx-overlay" aria-hidden="true">
+  <span class="fx-scan"></span>
+  <span class="fx-grain"></span>
+  <span class="fx-vignette"></span>
+</div>
+<!-- The travelling light: three soft discs chasing the pointer at different
+     lags, blended over everything. Driven by --pt-* on :root; each disc is
+     moved with a transform so the movement never costs a repaint. -->
+<div class="glow-cursor" aria-hidden="true">
+  <span class="glow-a"></span>
+  <span class="glow-b"></span>
+  <span class="glow-c"></span>
+</div>
+<div class="boot-sweep" aria-hidden="true"></div>
 
 <div class="shell">
 
-  <header class="wrap header">
-    <div class="brand">
-      <span class="brand-name">worxbend</span>
-      <span class="brand-path">~/streaming</span>
-    </div>
-    <nav class="nav" id="nav" aria-label="Primary">
-      <a href="#idea">Idea</a>
-      <a href="#map">Map</a>
-      <a href="#tools">Tools</a>
-      <a href="#start">Start</a>
-      <a href="https://github.com/worxbend" rel="noopener">GitHub ↗</a>
-    </nav>
-  </header>
+  <div class="header-bar" id="header-bar">
+    <header class="wrap header">
+      <div class="brand">
+        <span class="brand-name">worxbend</span>
+        <span class="brand-path">~/streaming</span>
+      </div>
+      <nav class="nav" id="nav" aria-label="Primary">
+        <a href="#idea">Idea</a>
+        <a href="#map">Map</a>
+        <a href="#tools">Tools</a>
+        <a href="#start">Start</a>
+        <a href="https://github.com/worxbend" rel="noopener">GitHub ↗</a>
+      </nav>
+      <button type="button" class="theme-toggle" id="theme-toggle"
+              aria-label="Switch to light theme" aria-pressed="false" title="Switch theme">
+        <span class="theme-icon theme-icon-moon" aria-hidden="true">☾</span>
+        <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+      </button>
+    </header>
+  </div>
 
   <main>
 
-  <section class="wrap hero">
-    <div class="eyebrow reveal">OBS STUDIO · TWITCH · TWO-MACHINE SETUP</div>
-    <h1 class="hero-title reveal">Your stream. Your terminal. <span class="accent">Zero alt-tabs.</span></h1>
-    <p class="hero-lede reveal">Five small, sharp, open-source utilities for OBS Studio and Twitch — built in Rust and Crystal, terminal-first, no Electron in sight.</p>
-    <ul class="pills reveal">
+  <section class="wrap hero" id="hero">
+    <div class="eyebrow reveal" data-reveal="left"><span class="eyebrow-dot"></span><span data-scramble>OBS STUDIO · TWITCH · TWO-MACHINE SETUP</span></div>
+    <h1 class="hero-title reveal" data-reveal="none" data-split>Your stream. Your terminal. <span class="accent">Zero alt-tabs.</span></h1>
+    <p class="hero-lede reveal" data-reveal="up">Five small, sharp, open-source utilities for OBS Studio and Twitch — built in Rust and Crystal, terminal-first, no Electron in sight.</p>
+    <ul class="pills reveal" data-reveal="stagger">
       <li class="pill">RUST + CRYSTAL</li>
       <li class="pill">SINGLE BINARIES</li>
       <li class="pill">NO ELECTRON</li>
@@ -54,40 +94,48 @@
       <li class="pill">TWITCH IRC</li>
       <li class="pill">MIT LICENSED</li>
     </ul>
-    <div class="cta-row reveal">
-      <a class="btn btn-primary" href="#map">Explore the map ↓</a>
-      <a class="btn btn-ghost" href="https://github.com/worxbend" rel="noopener">GitHub ↗</a>
+    <div class="cta-row reveal" data-reveal="up">
+      <a class="btn btn-primary" href="#map" data-magnet>Explore the map <span class="btn-arrow">↓</span></a>
+      <a class="btn btn-ghost" href="https://github.com/worxbend" rel="noopener" data-magnet>GitHub ↗</a>
       <span class="cta-note">5 TOOLS · 2 LANGUAGES · 1 LINK · 0 BROWSER TABS</span>
+    </div>
+    <div class="scroll-cue reveal" data-reveal="up" aria-hidden="true">
+      <span class="scroll-cue-rail"><span class="scroll-cue-dot"></span></span>
+      <span class="scroll-cue-text">SCROLL</span>
     </div>
   </section>
 
   <section class="wrap stats-band" aria-label="At a glance">
-    <div class="stat reveal">
+    <div class="stat reveal" data-reveal="stagger-self" data-spot>
       <span class="stat-num" data-count="5">0</span>
       <span class="stat-label">TOOLS</span>
     </div>
-    <div class="stat reveal">
+    <div class="stat reveal" data-reveal="stagger-self" data-spot>
       <span class="stat-num" data-count="1"><span class="stat-prefix">:</span>0</span>
       <span class="stat-label">WEBSOCKET LINK</span>
     </div>
-    <div class="stat reveal">
+    <div class="stat reveal" data-reveal="stagger-self" data-spot>
       <span class="stat-num" data-count="0">0</span>
       <span class="stat-label">ELECTRON APPS</span>
     </div>
-    <div class="stat reveal">
+    <div class="stat reveal" data-reveal="stagger-self" data-spot>
       <span class="stat-num" data-count="4455">0</span>
       <span class="stat-label">DEFAULT PORT</span>
     </div>
   </section>
 
+  <div class="ticker reveal" data-reveal="none" aria-hidden="true">
+    <div class="ticker-track" id="ticker-track"></div>
+  </div>
+
   <section class="wrap idea" id="idea">
-    <div class="section-tag reveal"><span class="rule"></span>THE IDEA</div>
-    <h2 class="section-title reveal">Two machines, one link.</h2>
-    <p class="section-lede reveal">OBS runs on the rig that captures and encodes. These tools run on the machine you actually work on. Between them is OBS's own WebSocket server — so the machine under load never has to be the machine you touch.</p>
+    <div class="section-tag reveal" data-reveal="left"><span class="rule"></span><span data-scramble>THE IDEA</span></div>
+    <h2 class="section-title reveal" data-reveal="wipe">Two machines, one link.</h2>
+    <p class="section-lede reveal" data-reveal="up">OBS runs on the rig that captures and encodes. These tools run on the machine you actually work on. Between them is OBS's own WebSocket server — so the machine under load never has to be the machine you touch.</p>
 
     <div class="idea-grid">
 
-      <div class="idea-col reveal">
+      <div class="idea-col reveal" data-reveal="left">
         <div class="node-label"><span class="dot dot-green"></span>YOUR MACHINE</div>
 
         <div class="win" id="idea-win">
@@ -145,7 +193,7 @@
         <div class="idea-caption" id="idea-caption"></div>
       </div>
 
-      <div class="idea-link reveal">
+      <div class="idea-link reveal" data-reveal="scale">
         <div class="link-head">OBS-WEBSOCKET 5.X</div>
         <div class="wire wire-purple"></div>
         <div class="link-note">COMMANDS ▸</div>
@@ -154,7 +202,7 @@
         <div class="link-foot">127.0.0.1:4455 BY DEFAULT</div>
       </div>
 
-      <div class="idea-col reveal">
+      <div class="idea-col reveal" data-reveal="right">
         <div class="node-label"><span class="dot dot-red pulse"></span>STREAMING RIG</div>
         <div class="win">
           <div class="win-bar">
@@ -184,27 +232,28 @@
   </section>
 
   <section class="wrap map-section" id="map">
-    <div class="map-head reveal">
-      <div class="section-tag-sm">THE MAP</div>
-      <div class="section-hint">click any node</div>
+    <div class="map-head reveal" data-reveal="up">
+      <div class="section-tag-sm" data-scramble>THE MAP</div>
+      <div class="section-hint"><span class="hint-pulse"></span>click any node</div>
     </div>
 
-    <div class="map-frame reveal">
+    <div class="map-frame reveal" data-reveal="scale">
       <div class="map-stage">
         <svg class="map-svg" width="1040" height="580" viewBox="0 0 1040 580" aria-hidden="true">
           <defs>
             <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-              <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#56534d" stroke-width="1.6"></path>
+              <path class="mk-base" d="M 0 1 L 9 5 L 0 9" fill="none" stroke-width="1.6"></path>
             </marker>
             <marker id="arrHl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-              <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#b49af0" stroke-width="1.8"></path>
+              <path class="mk-hl" d="M 0 1 L 9 5 L 0 9" fill="none" stroke-width="1.8"></path>
             </marker>
             <marker id="arrCap" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-              <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#5fce93" stroke-width="1.6"></path>
+              <path class="mk-cap" d="M 0 1 L 9 5 L 0 9" fill="none" stroke-width="1.6"></path>
             </marker>
           </defs>
           <g id="edges-base"></g>
           <g id="edges-hl"></g>
+          <g id="edges-packets"></g>
         </svg>
 
         <div class="map-lab" data-lab="ws"   style="left:386px;top:112px">OBS-WEBSOCKET 5.X</div>
@@ -247,18 +296,18 @@
   </section>
 
   <section class="wrap toolkit" id="tools">
-    <div class="section-tag reveal"><span class="rule"></span>THE TOOLKIT</div>
-    <h2 class="section-title reveal">Five binaries, one workflow.</h2>
-    <p class="section-lede reveal">Each one does a single job well and talks the same protocol. Take all five, or take the one you need.</p>
+    <div class="section-tag reveal" data-reveal="left"><span class="rule"></span><span data-scramble>THE TOOLKIT</span></div>
+    <h2 class="section-title reveal" data-reveal="wipe">Five binaries, one workflow.</h2>
+    <p class="section-lede reveal" data-reveal="up">Each one does a single job well and talks the same protocol. Take all five, or take the one you need.</p>
     <div class="tool-grid" id="tool-grid"></div>
   </section>
 
   <section class="wrap demo-section">
-    <div class="section-tag reveal"><span class="rule"></span>IN THE TERMINAL</div>
-    <h2 class="section-title reveal">Commands in. JSON out.</h2>
-    <p class="section-lede reveal">Every CLI call prints one envelope and exits with a code that means something — so your hotkeys and shell scripts can actually branch on the result.</p>
+    <div class="section-tag reveal" data-reveal="left"><span class="rule"></span><span data-scramble>IN THE TERMINAL</span></div>
+    <h2 class="section-title reveal" data-reveal="wipe">Commands in. JSON out.</h2>
+    <p class="section-lede reveal" data-reveal="up">Every CLI call prints one envelope and exits with a code that means something — so your hotkeys and shell scripts can actually branch on the result.</p>
 
-    <div class="demo-win reveal" id="demo-win">
+    <div class="demo-win reveal" data-reveal="scale" id="demo-win">
       <div class="win-bar">
         <span class="tl"></span><span class="tl"></span><span class="tl"></span>
         <span class="win-title">~/streaming — obsctl</span>
@@ -269,12 +318,12 @@
   </section>
 
   <section class="wrap start-section" id="start">
-    <div class="section-tag reveal"><span class="rule"></span>QUICK START</div>
-    <h2 class="section-title reveal">Live in three steps.</h2>
-    <p class="section-lede reveal">This walks through <code class="inline-code">obsctl-rs</code>; the others follow the same shape.</p>
+    <div class="section-tag reveal" data-reveal="left"><span class="rule"></span><span data-scramble>QUICK START</span></div>
+    <h2 class="section-title reveal" data-reveal="wipe">Live in three steps.</h2>
+    <p class="section-lede reveal" data-reveal="up">This walks through <code class="inline-code">obsctl-rs</code>; the others follow the same shape.</p>
 
     <ol class="steps">
-      <li class="step reveal">
+      <li class="step reveal" data-reveal="left">
         <div class="step-num">01</div>
         <div class="step-body">
           <h3>Turn on OBS's WebSocket server</h3>
@@ -284,7 +333,7 @@
           </div>
         </div>
       </li>
-      <li class="step reveal">
+      <li class="step reveal" data-reveal="left">
         <div class="step-num">02</div>
         <div class="step-body">
           <h3>Install the tool on your workstation</h3>
@@ -296,7 +345,7 @@
           <a class="step-link" href="https://github.com/worxbend/obsctl-rs/releases/latest/download/install.sh" rel="noopener">read the script first ↗</a>
         </div>
       </li>
-      <li class="step reveal">
+      <li class="step reveal" data-reveal="left">
         <div class="step-num">03</div>
         <div class="step-body">
           <h3>Point it at the rig and go</h3>
@@ -315,35 +364,35 @@ obsctl tui</code>
   </section>
 
   <section class="wrap why-section">
-    <div class="section-tag reveal"><span class="rule"></span>WHY TERMINAL-FIRST</div>
-    <h2 class="section-title reveal">Small tools that stay out of the way.</h2>
+    <div class="section-tag reveal" data-reveal="left"><span class="rule"></span><span data-scramble>WHY TERMINAL-FIRST</span></div>
+    <h2 class="section-title reveal" data-reveal="wipe">Small tools that stay out of the way.</h2>
     <div class="why-grid">
-      <div class="why-card reveal">
+      <div class="why-card reveal" data-reveal="stagger-self" data-spot data-tilt>
         <div class="why-icon">◧</div>
         <h3>Nothing steals focus</h3>
         <p>No window jumping in front of the thing you are capturing. A pane, a hotkey, and you are back.</p>
       </div>
-      <div class="why-card reveal">
+      <div class="why-card reveal" data-reveal="stagger-self" data-spot data-tilt>
         <div class="why-icon">⬢</div>
         <h3>Single static binaries</h3>
         <p>Rust and Crystal, linked against musl where it counts. Drop the file in <code class="inline-code">~/.local/bin</code> and it runs.</p>
       </div>
-      <div class="why-card reveal">
+      <div class="why-card reveal" data-reveal="stagger-self" data-spot data-tilt>
         <div class="why-icon">⇄</div>
         <h3>One socket, one owner</h3>
         <p>A local daemon holds the WebSocket so the CLI and TUI never fight over the connection.</p>
       </div>
-      <div class="why-card reveal">
+      <div class="why-card reveal" data-reveal="stagger-self" data-spot data-tilt>
         <div class="why-icon">{}</div>
         <h3>Scriptable by design</h3>
         <p>JSON envelopes and honest exit codes. Bind a scene switch to a key, or branch on it in CI.</p>
       </div>
-      <div class="why-card reveal">
+      <div class="why-card reveal" data-reveal="stagger-self" data-spot data-tilt>
         <div class="why-icon">◉</div>
         <h3>Load stays on the rig</h3>
         <p>Encoding happens where it should. Your workstation only sends commands and reads telemetry.</p>
       </div>
-      <div class="why-card reveal">
+      <div class="why-card reveal" data-reveal="stagger-self" data-spot data-tilt>
         <div class="why-icon">✦</div>
         <h3>Yours to change</h3>
         <p>Every tool is MIT licensed, with themes, locales and configs meant to be edited.</p>
@@ -352,9 +401,9 @@ obsctl tui</code>
   </section>
 
   <section class="wrap faq-section">
-    <div class="section-tag reveal"><span class="rule"></span>QUESTIONS</div>
-    <h2 class="section-title reveal">Before you install.</h2>
-    <div class="faq reveal">
+    <div class="section-tag reveal" data-reveal="left"><span class="rule"></span><span data-scramble>QUESTIONS</span></div>
+    <h2 class="section-title reveal" data-reveal="wipe">Before you install.</h2>
+    <div class="faq reveal" data-reveal="up">
       <details class="faq-item">
         <summary>Do I actually need two machines?</summary>
         <div class="faq-body"><p>No. Two machines is the setup these tools were shaped around, but every one of them works against a local OBS. Point them at <code class="inline-code">127.0.0.1:4455</code> and nothing else changes.</p></div>
@@ -391,7 +440,13 @@ obsctl tui</code>
 
 </div>
 
-<button type="button" class="to-top" id="to-top" aria-label="Back to top">↑</button>
+<button type="button" class="to-top" id="to-top" aria-label="Back to top">
+  <svg class="ring" viewBox="0 0 36 36" aria-hidden="true">
+    <circle class="track" cx="18" cy="18" r="16"></circle>
+    <circle class="val" id="to-top-val" cx="18" cy="18" r="16" stroke-dasharray="100.5" stroke-dashoffset="100.5"></circle>
+  </svg>
+  <span>↑</span>
+</button>
 
 <script src="assets/app.js" defer></script>
 </body>

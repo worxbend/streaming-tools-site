@@ -8,8 +8,9 @@ Implemented from the Claude Design source `Worxbend Streaming Tools.dc.html`.
 
 ## Stack
 
-None. It is a static site — plain HTML, CSS and one vanilla JS file. No build step,
-no framework, no bundler. The design source used the Claude Design `dc-runtime`
+None. It is a static site — plain HTML, CSS and vanilla JS. No build step, no
+framework, no bundler. The one third-party dependency is PixiJS, vendored as a
+plain `<script>` under `assets/vendor/` and loaded lazily at runtime. The design source used the Claude Design `dc-runtime`
 (React-backed `x-dc` template DSL, `support.js`); that runtime is a preview harness
 and is deliberately **not** shipped. Its constructs were translated directly:
 
@@ -26,9 +27,11 @@ and is deliberately **not** shipped. Its constructs were translated directly:
 ## Layout
 
 ```
-index.html          markup and copy
-assets/styles.css   design tokens + all styling
-assets/app.js       tool data, map graph, carousel, background canvas
+index.html              markup and copy
+assets/styles.css       theme tokens (dark + light) + all styling
+assets/app.js           tool data, map graph, carousel, reveals, theme, pointer light
+assets/bg.js            the background engine — particles, springs, energy, renderers
+assets/vendor/pixi.min.js  vendored PixiJS 8 (MIT), loaded lazily
 favicon.svg
 netlify.toml        Netlify deploy + header config
 CNAME               custom domain for GitHub Pages
@@ -175,18 +178,137 @@ first* so it can be inspected before running.
 | Quick start | markup; commands taken from the obsctl-rs README |
 | Why terminal-first, Questions | markup (`<details>` for the FAQ) |
 
+## Theming
+
+Two themes: dark (the default) and a warm-paper light. Both are pure token
+swaps — `:root` holds dark, `[data-theme="light"]` overrides the same names, and
+**no rule below the token block names a colour literally**. That is the whole
+contract; if a new rule hardcodes a hex, one of the two themes will be wrong.
+
+Tokens cover more than the obvious palette: panel steps, shadows, the code
+block and map-label surfaces, the OBS preview mock, the SVG edge strokes, the
+overlay opacities, and the blend mode the cursor glow uses (`screen` on dark,
+`multiply` on light — on paper the light pools colour rather than adding it).
+
+The `--fx-*` entries are space-separated RGB triplets so one value serves both
+`rgb(var(--fx-c1) / 20%)` in CSS and `getComputedStyle` in the canvas engine.
+
+Resolution order, and why it is split:
+
+1. An inline script in `<head>` reads `localStorage` (falling back to
+   `prefers-color-scheme`) and sets `data-theme` **before the first paint**. It
+   is inline and tiny on purpose — deferring it to `app.js` would show a dark
+   flash to light-theme visitors.
+2. `initTheme()` in `app.js` wires the header toggle, persists the choice, and
+   keeps following the OS preference for as long as nothing is stored.
+3. On every change it re-reads the palettes that JS caches (the background
+   engine's, the travelling light's) and fires a `worxbend:theme` event.
+
+Map edges, arrowheads, packets and labels are coloured by CSS class rather than
+by JS-written attributes, so a theme swap costs no repaint pass at all.
+
 ## Motion
 
-Everything is CSS transitions plus a little JS; there is no animation library.
+There is no animation library. Everything is CSS transitions, a few small rAF
+loops, and one canvas.
 
-- Scroll-reveal, the scroll-progress bar, active-section nav highlighting,
-  back-to-top, stat counters, the typing demo and the background icosphere.
-- The reveal effect is gated behind a `has-js` class added by `app.js`, so with
-  scripting unavailable the content is simply visible rather than stuck at
-  `opacity: 0`.
-- `prefers-reduced-motion: reduce` turns all of it off: reveals resolve to
-  visible, counters jump to their final value, the terminal renders as a finished
-  transcript, and the carousel stops auto-advancing (its dots still work).
+### The background engine
+
+`assets/bg.js` is standalone: it owns one fullscreen canvas inside
+`#background-canvas` and knows nothing about the site's markup. It draws a
+particle network — nodes drift on a low-frequency noise field, connect to their
+neighbours into springs, and light up as the cursor drags energy through the
+mesh.
+
+| System | What it does |
+| ------ | ------------ |
+| Configuration | every tunable in one object — density, damping, connection distance, spring stiffness, attraction radius and strength, energy gain and decay, vibration, glow, speed |
+| ParticleSystem | position, velocity, acceleration, radius, mass and energy as flat typed arrays, allocated once |
+| SpatialHash | uniform grid + counting sort; neighbour search is O(n), never O(n²) |
+| PhysicsSystem | integrate, damp, add noise wind, push back from the edges with a soft force rather than a bounce |
+| ConnectionSystem | rebuilds the edge list each frame, capped per particle |
+| SpringSystem | Hooke's law along each edge plus a damper on the closing speed, so strings vibrate and then settle |
+| InteractionSystem | inverse-square cursor attraction, clamped, with a tangential share so particles orbit instead of collapsing; clicks fire an expanding ripple |
+| EnergySystem | the cursor charges what it passes over; energy flows along edges to neighbours and decays exponentially |
+| Renderer | Canvas2D by default, WebGL via PixiJS when the machine is willing |
+| AnimationLoop | rAF, paused while the tab is hidden |
+
+Energy drives everything visual: colour (idle → interaction → high), glow
+radius, core size, line brightness, and how hard each string vibrates — edges
+above a threshold are drawn as quadratic Béziers whose control point rides a
+sine wave.
+
+**Nothing inside the frame loop allocates.** Arrays are sized at start and
+reused; edges, brightness buckets and the glow sprites are all pooled.
+
+Density scales with viewport area (one particle per ~8600px², clamped to
+60–340), so a phone gets a sparse mesh and a desktop a full one. If frame times
+stay long the loop sheds particles, shrinks the glow and drops to 1× pixel
+ratio rather than dropping frames.
+
+Rendering starts on Canvas2D immediately — small, no dependency — and swaps to
+the GPU renderer once PixiJS has loaded, carrying the running simulation across.
+Each step is optional: no `bg.js`, no background; no PixiJS, Canvas2D keeps
+going; no WebGL at all, same. `<html>` carries `fx-live` and `fx-webgl` as
+state hooks so you can see which path a browser took from the console.
+
+### The travelling light
+
+A single moving light source washes over the background, every widget and the
+page chrome. `initSpotlight()` in `app.js` keeps three followers chasing the
+pointer at different damping rates and publishes them as custom properties on
+`:root` — `--pt-x/y` (quick), `--pt2-*`, `--pt3-*` (slowest), plus a palette that
+cycles as the pointer travels. **Nothing reads the raw cursor position**: the lag
+*is* the effect.
+
+Two consumers share those properties:
+
+- `.glow-cursor` — three soft discs over the whole page. Each is a solid colour
+  behind a radial mask and is moved with `translate3d`, so following the pointer
+  is a composite rather than a repaint.
+- `[data-spot]` widgets — cards, panels, the map and its nodes, command boxes.
+  `app.js` hit-tests the *lagging* point once per frame and lights only the
+  widget under it, giving that one a surface sheen (`::after`) and an edge
+  hairline (`.lit-edge`).
+
+The background engine deliberately does **not** read these — the mesh attracts
+to the real cursor, not the lagging one, or grabbing a particle would feel
+rubbery. The two effects stay coherent because both draw from the same `--fx-*`
+theme tokens.
+
+Colour writes repaint, so they are throttled to ~12Hz; the palette drifts far
+slower than the pointer moves and the difference is invisible. If frame times
+stay long while the pointer is moving, a watchdog adds `fx-lite` to `<html>`,
+which sheds the grain and the widest disc.
+
+### Reveals
+
+`data-reveal` on a `.reveal` element picks its entrance — `up`, `left`, `right`,
+`scale`, `wipe`, `stagger`, `stagger-self`. The hero headline is split into
+per-word boxes that slide up from behind their own clipping.
+
+> [!NOTE]
+> The `wipe` variant uses `mask-size`, not `clip-path`. An element clipped to
+> zero area reads as *not intersecting*, so IntersectionObserver never fires and
+> the heading stays hidden forever.
+
+Three safety nets guarantee content is never stranded invisible: the effect is
+gated behind a `has-js` class, a 2.5s timer reveals anything already on screen,
+and a post-scroll sweep catches elements a hard flick carried past the observer
+between samples.
+
+### Reduced motion and touch
+
+`prefers-reduced-motion: reduce` turns all of it off — reveals resolve to
+visible, counters jump to their final value, the terminal renders as a finished
+transcript, the carousel stops auto-advancing (its dots still work), and the
+background engine, grain, boot sweep and travelling light are never started —
+the engine's host element is removed outright rather than left idling.
+
+Touch-only devices skip the pointer effects; there is no pointer to trail. The
+check is `(pointer: coarse)` **and** not `(any-hover: hover)` — `(hover: none)`
+alone is also true wherever no input device is attached yet, and would disable
+the effects on machines that should have them.
 
 ## Editing content
 
@@ -198,6 +320,14 @@ a node, update the matching edge endpoints.
 ## Notes
 
 - Fonts (Space Grotesk, JetBrains Mono) load from Google Fonts.
-- `prefers-reduced-motion` disables the dash flow, the sphere rotation and the
-  carousel auto-advance; the dots still work manually.
 - Map nodes are real `<button>`s, so keyboard and screen-reader navigation work.
+- `assets/vendor/pixi.min.js` is a vendored build, not edited by hand. It is
+  committed rather than pulled from a CDN so the site has no third-party runtime
+  dependency and works offline. Refresh it with the command in its own header:
+
+  ```sh
+  curl -fsSL -o assets/vendor/pixi.min.js \
+    https://cdn.jsdelivr.net/npm/pixi.js@8.19.0/dist/pixi.min.js
+  ```
+
+  It exposes the global `PIXI`; `assets/bg.js` expects nothing else from it.
