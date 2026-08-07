@@ -888,10 +888,16 @@
     }).then(function () {
       var next = new PixiRenderer(host, PIXI, app);
       var prev = renderer;
+
+      // Paint one frame with the new renderer before retiring the old one.
+      // Leaving both on screen for a beat double-exposes the mesh (they are
+      // additive), and removing the old one first shows a blank frame — this
+      // hands over with neither.
+      next.draw(engine);
+      app.render();
       renderer = next;
-      // the new canvas is already in the DOM; drop the old one a beat later so
-      // the swap is not visible as a gap
-      setTimeout(function () { try { prev.destroy(); } catch (e) { /* ignore */ } }, 60);
+      try { prev.destroy(); } catch (e) { /* already gone */ }
+
       return api;
     });
   }
