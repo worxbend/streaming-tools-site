@@ -1,8 +1,9 @@
 # worxbend — streaming tools map
 
-Landing page for the worxbend OBS Studio / Twitch tooling: an interactive map of how
-`scenedeck`, `obsctl-rs`, `obsctl`, `obs-stats` and `twi` talk to a remote OBS over
-obs-websocket 5.x.
+Landing page for the worxbend streaming tooling: an interactive map of how
+`scenedeck`, `obsctl-rs`, `obsctl` and `obs-stats` talk to a remote OBS over
+obs-websocket 5.x, and how `msm`, `twi` and `yc` reach Twitch and YouTube
+directly without going through the rig at all.
 
 Implemented from the Claude Design source `Worxbend Streaming Tools.dc.html`.
 
@@ -140,12 +141,19 @@ the URL actually serves what it claims:
 | `obsctl` | `curl \| sh` | `worxbend.github.io/obsctl/install.sh` |
 | `obs-stats` | `curl \| sh` | `raw.githubusercontent.com/.../main/scripts/install.sh` |
 | `twi` | `curl \| sh` | `releases/latest/download/install.sh` |
+| `msm` | `curl \| sh` | `raw.githubusercontent.com/.../main/install.sh` |
+| `yc` | `curl \| bash` | `releases/latest/download/install.sh` |
 | `scenedeck` | Snap Store | strict-confinement snap |
 | `scenedeck` | GitHub release binary | for people who do not use snap |
 
-Every `curl` uses `-fsSL`. The `L` matters: the release-asset URLs answer `302`,
-so a command without `-L` pipes a redirect body into `sh` and silently does
-nothing.
+Every `curl` uses `-fsSL` (or `--proto '=https' --tlsv1.2 -sSf`, which `yc`
+documents). The `L` matters: the release-asset URLs answer `302`, so a command
+without `-L` pipes a redirect body into `sh` and silently does nothing.
+
+> [!NOTE]
+> `yc` pipes into **`bash`**, not `sh`, and that is not a typo. On Debian and
+> Ubuntu `/bin/sh` is `dash`, and its installer needs bash. Copying it as
+> `| sh` there fails.
 
 `obsctl` uses the Pages-hosted URL because that is the form its README documents;
 the same script is attached to each release at
@@ -171,12 +179,12 @@ first* so it can be inspected before running.
 | Section | Built from |
 | ------- | ---------- |
 | Hero + stats band | markup; counters animate from `data-count` |
-| The idea | markup; 5-panel carousel auto-advances every 3.2s, pauses on hover |
+| The idea | markup; 7-panel carousel auto-advances every 3.2s, pauses on hover |
 | The map + detail | rendered from `DATA` + `GEO` + `EDGES` |
 | The toolkit | rendered from `DATA` + `CARD_META` (per-card accent, blurb, features) |
+| Questions | markup (`<details>`); covers the two-machine, OBS-version and YouTube questions |
 | In the terminal | `DEMO` transcript, typed character by character on a loop |
 | Quick start | markup; commands taken from the obsctl-rs README |
-| Why terminal-first, Questions | markup (`<details>` for the FAQ) |
 
 ## Theming
 
@@ -315,7 +323,14 @@ the effects on machines that should have them.
 Tool copy, chips and links live in the `DATA` object at the top of `assets/app.js`.
 Map geometry is `GEO` (node boxes) and `EDGES` (connector paths) just below it —
 node anchor coordinates in the edge list are hand-tuned to the boxes, so if you move
-a node, update the matching edge endpoints.
+a node, update the matching edge endpoints. The stage is 1040x720; the zone
+rectangles and labels are absolutely positioned in `index.html` in the same
+coordinate space and have to move with it.
+
+The layout has one load-bearing property: OBS sits high on the right, which
+keeps the whole band beneath it clear. Every workstation-to-destination edge
+(`msm`, `twi`, `yc`) runs through that band, so none of them has to cross the
+rig. Move OBS down and those three edges start cutting through it.
 
 ## Notes
 

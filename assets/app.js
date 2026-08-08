@@ -95,32 +95,79 @@
       }],
       site: "https://worxbend.github.io/twi/", repo: "https://github.com/worxbend/twi"
     },
+    msm: {
+      label: "msm", sub: "one form, both platforms", chips: ["Rust", "TUI"],
+      name: "multistream-manager", kind: "go-live form · Rust · TUI",
+      desc: "Type the title, description, tags, category and language once, press Ctrl+G, and Twitch and YouTube are both configured in parallel — then you press Start Streaming in OBS exactly as you always did. Once you are live the same window shows viewers, followers and likes for both, side by side. It deliberately never touches OBS: it gets the platforms ready and leaves going live to you.",
+      detailChips: ["Rust", "Twitch + YouTube", "reuses your stream key", "partial success is fine", "MIT"],
+      connects: "workstation ──configures──▶ Twitch + YouTube · OBS untouched",
+      // The installer is served from the default branch, which is the form the
+      // README documents; releases carry Linux x86_64 and aarch64 binaries.
+      installs: [{
+        tag: "CURL | SH",
+        cmd: "curl -fsSL https://raw.githubusercontent.com/worxbend/multistream-manager/main/install.sh | sh",
+        inspect: "https://raw.githubusercontent.com/worxbend/multistream-manager/main/install.sh",
+        alt: { text: "or cargo install from source ↗", href: "https://github.com/worxbend/multistream-manager#-install" }
+      }],
+      site: "https://worxbend.github.io/multistream-manager/", repo: "https://github.com/worxbend/multistream-manager"
+    },
+    yc: {
+      label: "yc", sub: "YouTube chat client", chips: ["Go"],
+      name: "yc", kind: "YouTube live chat · Go",
+      desc: "What twi does for Twitch, against a very different API. YouTube offers no chat socket a REST client can reach — only a polling endpoint and 10,000 units a day — so a YouTube chat client is a budgeting client. yc meters every call it makes, stretches its own poll interval to make the day last, and shows the remaining budget and the effective cadence on every frame. Super Chats, memberships, polls and moderation all render in the pane.",
+      detailChips: ["Go", "YouTube Data API v3", "quota meter", "58 themes", "mock mode", "MIT"],
+      connects: "workstation ──chat / Data API──▶ YouTube",
+      // The installer needs bash: on Debian and Ubuntu /bin/sh is dash, and
+      // piping into sh there fails. Upstream documents `| bash` for that reason.
+      installs: [{
+        tag: "CURL | BASH",
+        cmd: "curl --proto '=https' --tlsv1.2 -sSf \\\n  https://github.com/worxbend/yc/releases/latest/download/install.sh | bash",
+        inspect: "https://github.com/worxbend/yc/releases/latest/download/install.sh",
+        alt: { text: "or go install ↗", href: "https://github.com/worxbend/yc#quickstart" }
+      }],
+      site: "https://worxbend.github.io/yc/", repo: "https://github.com/worxbend/yc"
+    },
     obs: {
       label: "OBS Studio", sub: "capturing · encoding · left alone", chips: ["ENCODING", "OBS 28+"], live: true,
       name: "OBS Studio (remote)", kind: "the streaming rig",
-      desc: "OBS runs on a dedicated rig that captures your workstation's screen and audio, encodes, and sends the stream out. Encoding load stays off the computer you work on — and you never touch the rig: every knob is turned remotely over obs-websocket, commands out, scenes, audio and telemetry back.",
+      desc: "OBS runs on a dedicated rig that captures your workstation's screen and audio, encodes, and pushes the stream out to Twitch and YouTube. Encoding load stays off the computer you work on — and you never touch the rig: every knob is turned remotely over obs-websocket, commands out, scenes, audio and telemetry back.",
       detailChips: ["obs-websocket 5.x", "127.0.0.1:4455 by default", "OBS 28+", "busy, and left alone"],
-      connects: "captures ◀── workstation · streams ──▶ Twitch / RTMP",
+      connects: "captures ◀── workstation · streams ──▶ Twitch + YouTube",
       site: null, repo: null
     },
     twitch: {
       label: "Twitch", sub: "stream + IRC chat", chips: ["RTMP", "IRC"],
-      name: "Twitch", kind: "the destination",
-      desc: "The rig's OBS pushes the encoded stream to Twitch, while twi keeps you in the conversation over IRC. Everything you see and type stays on the workstation.",
-      detailChips: ["RTMP ingest", "IRC chat"],
-      connects: "remote OBS ──streams──▶ Twitch ◀──chat── twi",
+      name: "Twitch", kind: "a destination",
+      desc: "The rig's OBS pushes the encoded stream to Twitch, msm sets the title, category and tags before you go live, and twi keeps you in the conversation over IRC. Everything you see and type stays on the workstation.",
+      detailChips: ["RTMP ingest", "IRC chat", "set up by msm"],
+      connects: "remote OBS ──streams──▶ Twitch ◀──chat── twi · configured by msm",
+      site: null, repo: null
+    },
+    youtube: {
+      label: "YouTube", sub: "stream + live chat", chips: ["RTMP", "DATA API"],
+      name: "YouTube", kind: "the other destination",
+      desc: "The same stream, second destination. msm creates the broadcast and fills in its title, description, tags and visibility — reusing your existing stream key rather than regenerating it — and yc reads the live chat over the Data API. No YouTube Studio tab required.",
+      detailChips: ["RTMP ingest", "Data API v3 chat", "broadcast created by msm"],
+      connects: "remote OBS ──streams──▶ YouTube ◀──chat── yc · configured by msm",
       site: null, repo: null
     }
   };
 
+  /* Stage is 1040x720. The workstation column runs the full height on the
+     left; OBS sits high on the right so the lane beneath it stays clear for
+     every workstation-to-destination edge, which is what keeps msm, twi and yc
+     from having to cross the rig. */
   var GEO = [
-    { id: "scenedeck", x: 56,  y: 104, w: 236, h: 76 },
-    { id: "obsctl-rs", x: 56,  y: 190, w: 236, h: 76 },
-    { id: "obsctl",    x: 56,  y: 276, w: 236, h: 76 },
-    { id: "obs-stats", x: 56,  y: 362, w: 236, h: 76 },
-    { id: "twi",       x: 56,  y: 452, w: 236, h: 76 },
-    { id: "obs",       x: 583, y: 158, w: 204, h: 112 },
-    { id: "twitch",    x: 862, y: 182, w: 140, h: 76 }
+    { id: "scenedeck", x: 56,  y: 88,  w: 236, h: 76 },
+    { id: "obsctl-rs", x: 56,  y: 174, w: 236, h: 76 },
+    { id: "obsctl",    x: 56,  y: 260, w: 236, h: 76 },
+    { id: "obs-stats", x: 56,  y: 346, w: 236, h: 76 },
+    { id: "msm",       x: 56,  y: 432, w: 236, h: 76 },
+    { id: "twi",       x: 56,  y: 518, w: 236, h: 76 },
+    { id: "yc",        x: 56,  y: 604, w: 236, h: 76 },
+    { id: "obs",       x: 583, y: 112, w: 204, h: 112 },
+    { id: "twitch",    x: 838, y: 316, w: 150, h: 76 },
+    { id: "youtube",   x: 838, y: 446, w: 150, h: 76 }
   ];
 
   /* smooth cubic with horizontal tangents between exact node anchor points */
@@ -134,14 +181,30 @@
      Both resolve to CSS custom properties, so a theme swap needs no repaint
      pass here at all. */
   var EDGES = [
-    { d: C(292, 142, 583, 176), base: "cmd", dash: "6 6", speed: "1.1s",  marker: "url(#arr)",    on: ["scenedeck"], tone: "cmd", hlMarker: "url(#arrHl)" },
-    { d: C(292, 228, 583, 198), base: "cmd", dash: "6 6", speed: "1.1s",  marker: "url(#arr)",    on: ["obsctl-rs"], tone: "cmd", hlMarker: "url(#arrHl)" },
-    { d: C(292, 314, 583, 220), base: "cmd", dash: "6 6", speed: "1.1s",  marker: "url(#arr)",    on: ["obsctl"],    tone: "cmd", hlMarker: "url(#arrHl)" },
-    { d: C(292, 400, 583, 242), base: "cmd", dash: "3 5", speed: "1.1s",  marker: "url(#arr)",    on: ["obs-stats"], tone: "cmd", hlMarker: "url(#arrHl)" },
-    { d: C(583, 256, 326, 428), base: "cap", dash: "6 6", speed: "1.3s", reverse: true, marker: "url(#arrCap)", on: ["obs", "scenedeck", "obsctl-rs", "obsctl", "obs-stats"], tone: "tel", hlMarker: "url(#arrCap)" },
-    { d: C(787, 214, 858, 212), base: "cmd", dash: "7 5", speed: "1.1s",  marker: "url(#arr)",    on: ["obs", "twitch"], tone: "cmd", hlMarker: "url(#arrHl)" },
-    { d: "M 292 490 C 620 496, 932 420, 932 268", base: "cmd", dash: "6 6", speed: "2s", marker: "url(#arr)", on: ["twi", "twitch"], tone: "cmd", hlMarker: "url(#arrHl)" },
-    { d: "M 326 90 C 420 54, 470 58, 556 102",    base: "cap", dash: "3 4", speed: "2s", marker: "url(#arrCap)", on: ["obs"], tone: "tel", hlMarker: "url(#arrCap)" }
+    /* control tools ──▶ the rig */
+    { d: C(292, 126, 583, 132), base: "cmd", dash: "6 6", speed: "1.1s", marker: "url(#arr)", on: ["scenedeck"], tone: "cmd", hlMarker: "url(#arrHl)" },
+    { d: C(292, 212, 583, 156), base: "cmd", dash: "6 6", speed: "1.1s", marker: "url(#arr)", on: ["obsctl-rs"], tone: "cmd", hlMarker: "url(#arrHl)" },
+    { d: C(292, 298, 583, 180), base: "cmd", dash: "6 6", speed: "1.1s", marker: "url(#arr)", on: ["obsctl"],    tone: "cmd", hlMarker: "url(#arrHl)" },
+    { d: C(292, 384, 583, 204), base: "cmd", dash: "3 5", speed: "1.1s", marker: "url(#arr)", on: ["obs-stats"], tone: "cmd", hlMarker: "url(#arrHl)" },
+
+    /* the rig ──▶ back to every control tool */
+    { d: C(583, 222, 326, 400), base: "cap", dash: "6 6", speed: "1.3s", reverse: true, marker: "url(#arrCap)", on: ["obs", "scenedeck", "obsctl-rs", "obsctl", "obs-stats"], tone: "tel", hlMarker: "url(#arrCap)" },
+
+    /* the rig ──▶ both destinations. YouTube is reached around the outside so
+       the drop does not cut through Twitch on the way past. */
+    { d: C(787, 190, 834, 322), base: "cmd", dash: "7 5", speed: "1.1s", marker: "url(#arr)", on: ["obs", "twitch"], tone: "cmd", hlMarker: "url(#arrHl)" },
+    { d: "M 792 206 C 930 232, 1026 268, 1026 400 C 1026 438, 1012 458, 992 460", base: "cmd", dash: "7 5", speed: "1.6s", marker: "url(#arr)", on: ["obs", "youtube"], tone: "cmd", hlMarker: "url(#arrHl)" },
+
+    /* msm configures both platforms directly — it never speaks to OBS */
+    { d: C(292, 470, 834, 334), base: "cmd", dash: "6 6", speed: "1.4s", marker: "url(#arr)", on: ["msm", "twitch"],  tone: "cmd", hlMarker: "url(#arrHl)" },
+    { d: C(292, 470, 834, 462), base: "cmd", dash: "6 6", speed: "1.4s", marker: "url(#arr)", on: ["msm", "youtube"], tone: "cmd", hlMarker: "url(#arrHl)" },
+
+    /* chat clients ──▶ their platform */
+    { d: C(292, 556, 834, 366), base: "cmd", dash: "6 6", speed: "1.8s", marker: "url(#arr)", on: ["twi", "twitch"],  tone: "cmd", hlMarker: "url(#arrHl)" },
+    { d: C(292, 642, 834, 496), base: "cmd", dash: "6 6", speed: "1.8s", marker: "url(#arr)", on: ["yc", "youtube"],  tone: "cmd", hlMarker: "url(#arrHl)" },
+
+    /* the rig captures the workstation */
+    { d: "M 326 52 C 430 20, 486 22, 554 56", base: "cap", dash: "3 4", speed: "2s", marker: "url(#arrCap)", on: ["obs"], tone: "tel", hlMarker: "url(#arrCap)" }
   ];
 
   /* tone picks the resting colour; paintLabels only toggles .is-on. */
@@ -150,8 +213,10 @@
     cmd:  { on: ["scenedeck", "obsctl-rs", "obsctl"],        tone: "quiet" },
     mon:  { on: ["obs-stats"],                               tone: "quiet" },
     tel:  { on: ["obs", "scenedeck", "obsctl-rs", "obsctl", "obs-stats"], tone: "cap" },
-    rtmp: { on: ["obs", "twitch"],                           tone: "loud" },
-    chat: { on: ["twi", "twitch"],                           tone: "loud" },
+    rtmp: { on: ["obs", "twitch", "youtube"],                tone: "loud" },
+    cfg:  { on: ["msm", "twitch", "youtube"],                tone: "quiet" },
+    chat: { on: ["twi", "twitch"],                           tone: "quiet" },
+    ychat:{ on: ["yc", "youtube"],                           tone: "quiet" },
     cap:  { on: ["obs"],                                     tone: "cap" }
   };
 
@@ -206,7 +271,7 @@
         var d = document.createElement("span");
         d.className = "dot dot-red pulse";
         var t = document.createElement("span");
-        t.textContent = "TO TWITCH / RTMP";
+        t.textContent = "TO TWITCH + YOUTUBE";
         live.appendChild(d);
         live.appendChild(t);
         btn.appendChild(live);
@@ -536,13 +601,15 @@
 
   /* -------------------------------------------------------- idea carousel */
 
-  var IDEA_TITLES = ["SceneDeck", "obsctl-rs — TUI", "obsctl — CLI", "obs-stats", "twi"];
+  var IDEA_TITLES = ["SceneDeck", "obsctl-rs — TUI", "obsctl — CLI", "obs-stats", "twi", "msm", "yc"];
   var IDEA_CAPS = [
     ["CODING, PRESENTING, PLAYING.", "NOTHING IS BEING ENCODED HERE."],
     ["HOTKEYS AND A LIVE TUI.",      "ONE DAEMON OWNS THE SOCKET."],
     ["SHELL SCRIPTS WELCOME.",       "JSON IN, EXIT CODES OUT."],
     ["FRAME DROPS, NAMED AND BLAMED.", "BEFORE VIEWERS NOTICE."],
-    ["CHAT IN A TERMINAL PANE.",     "NO BROWSER TAB."]
+    ["CHAT IN A TERMINAL PANE.",     "NO BROWSER TAB."],
+    ["ONE FORM, BOTH PLATFORMS.",    "THEN GO LIVE IN OBS."],
+    ["YOUTUBE CHAT, METERED.",       "THE DAY'S QUOTA, MADE TO LAST."]
   ];
 
   var ideaIdx = 0, ideaPaused = false, ideaTimer = null;
@@ -743,7 +810,7 @@
 
   // Card-only presentation data. Kept beside DATA rather than inside it so the
   // design-sourced copy stays untouched.
-  var CARD_ORDER = ["scenedeck", "obsctl-rs", "obsctl", "obs-stats", "twi"];
+  var CARD_ORDER = ["scenedeck", "obsctl-rs", "obsctl", "obs-stats", "msm", "twi", "yc"];
   var CARD_META = {
     scenedeck: {
       accent: "var(--acc-scenedeck)",
@@ -765,10 +832,20 @@
       short: "A btop-style health dashboard that tells you which frames are dropping, and why.",
       feats: ["GPU, encoder and network kept apart", "Desktop notification on first drop", "6 views, 24 themes"]
     },
+    msm: {
+      accent: "var(--acc-msm)",
+      short: "One form for Twitch and YouTube, then Start Streaming in OBS as usual.",
+      feats: ["Both platforms configured in parallel", "Viewers, followers and likes side by side", "Never touches OBS itself"]
+    },
     twi: {
       accent: "var(--acc-twi)",
       short: "Twitch chat in a terminal pane — no browser tab, no Electron, no window stealing focus.",
       feats: ["Reads and sends over Twitch IRC", "Sits beside obs-stats in a split", "Stays on your workstation"]
+    },
+    yc: {
+      accent: "var(--acc-yc)",
+      short: "YouTube live chat in a pane, with a quota meter you can actually see.",
+      feats: ["Paces polling to make the day's units last", "Super Chats, members, polls, moderation", "58 themes and a credential-free mock mode"]
     }
   };
 
@@ -851,6 +928,7 @@
     { cmd: "obsctl scene 'BRB'",  out: ['{ "ok": true, "scene": "BRB" }'] },
     { cmd: "obsctl mute 'Mic'",   out: ['{ "ok": true, "muted": true }'] },
     { cmd: "obsctl obs-status",   out: ['{ "ok": true, "live": true, "fps": 60.0 }'] },
+    { cmd: "msm go --yes --json", out: ['{ "twitch": "ready", "youtube": "ready" }'] },
     { cmd: "obsctl vol 'Mic' 70", out: ['{ "ok": true, "volume": 70 }', "exit 0"] }
   ];
 
@@ -1365,10 +1443,11 @@
 
   var TICKER = [
     "OBS-WEBSOCKET 5.X", "127.0.0.1:4455", "SCENES", "AUDIO MIXER", "TELEMETRY",
-    "RUST", "CRYSTAL", "RATATUI", "GTK4", "TWITCH IRC", "STATIC MUSL BUILDS",
+    "RUST", "CRYSTAL", "GO", "RATATUI", "GTK4", "TWITCH IRC", "YOUTUBE DATA API",
+    "QUOTA-AWARE POLLING", "ONE FORM, BOTH PLATFORMS", "STATIC MUSL BUILDS",
     "JSON ENVELOPES", "HONEST EXIT CODES", "0 ELECTRON APPS", "MIT LICENSED"
   ];
-  var TICKER_HOT = { "0 ELECTRON APPS": 1, TELEMETRY: 1, "MIT LICENSED": 1 };
+  var TICKER_HOT = { "0 ELECTRON APPS": 1, TELEMETRY: 1, "MIT LICENSED": 1, "YOUTUBE DATA API": 1 };
 
   function buildTicker() {
     var track = document.getElementById("ticker-track");

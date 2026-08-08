@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>worxbend — streaming tools map</title>
-<meta name="description" content="Five small, sharp, open-source utilities for OBS Studio and Twitch — built in Rust and Crystal, terminal-first, no Electron in sight.">
+<meta name="description" content="Seven small, sharp, open-source utilities for OBS Studio, Twitch and YouTube — built in Rust, Crystal and Go, terminal-first, no Electron in sight.">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#0f1012" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f5f3ee" media="(prefers-color-scheme: light)">
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="worxbend — streaming tools map">
-<meta property="og:description" content="Five small, sharp, open-source utilities for OBS Studio and Twitch. Rust + Crystal, terminal-first, no Electron.">
+<meta property="og:description" content="Seven small, sharp, open-source utilities for OBS Studio, Twitch and YouTube. Rust, Crystal and Go, terminal-first, no Electron.">
 <meta name="twitter:card" content="summary_large_image">
 
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -83,21 +83,22 @@
   <main>
 
   <section class="wrap hero" id="hero">
-    <div class="eyebrow reveal" data-reveal="left"><span class="eyebrow-dot"></span><span data-scramble>OBS STUDIO · TWITCH · TWO-MACHINE SETUP</span></div>
+    <div class="eyebrow reveal" data-reveal="left"><span class="eyebrow-dot"></span><span data-scramble>OBS STUDIO · TWITCH · YOUTUBE · TWO-MACHINE SETUP</span></div>
     <h1 class="hero-title reveal" data-reveal="none" data-split>Your stream. Your terminal. <span class="accent">Zero alt-tabs.</span></h1>
-    <p class="hero-lede reveal" data-reveal="up">Five small, sharp, open-source utilities for OBS Studio and Twitch — built in Rust and Crystal, terminal-first, no Electron in sight.</p>
+    <p class="hero-lede reveal" data-reveal="up">Seven small, sharp, open-source utilities for OBS Studio, Twitch and YouTube — built in Rust, Crystal and Go, terminal-first, no Electron in sight.</p>
     <ul class="pills reveal" data-reveal="stagger">
-      <li class="pill">RUST + CRYSTAL</li>
+      <li class="pill">RUST · CRYSTAL · GO</li>
       <li class="pill">SINGLE BINARIES</li>
       <li class="pill">NO ELECTRON</li>
       <li class="pill">OBS-WEBSOCKET 5</li>
       <li class="pill">TWITCH IRC</li>
+      <li class="pill">YOUTUBE DATA API</li>
       <li class="pill">MIT LICENSED</li>
     </ul>
     <div class="cta-row reveal" data-reveal="up">
       <a class="btn btn-primary" href="#map" data-magnet>Explore the map <span class="btn-arrow">↓</span></a>
       <a class="btn btn-ghost" href="https://github.com/worxbend" rel="noopener" data-magnet>GitHub ↗</a>
-      <span class="cta-note">5 TOOLS · 2 LANGUAGES · 1 LINK · 0 BROWSER TABS</span>
+      <span class="cta-note">7 TOOLS · 3 LANGUAGES · 2 PLATFORMS · 0 BROWSER TABS</span>
     </div>
     <div class="scroll-cue reveal" data-reveal="up" aria-hidden="true">
       <span class="scroll-cue-rail"><span class="scroll-cue-dot"></span></span>
@@ -107,7 +108,7 @@
 
   <section class="wrap stats-band" aria-label="At a glance">
     <div class="stat reveal" data-reveal="stagger-self" data-spot>
-      <span class="stat-num" data-count="5">0</span>
+      <span class="stat-num" data-count="7">0</span>
       <span class="stat-label">TOOLS</span>
     </div>
     <div class="stat reveal" data-reveal="stagger-self" data-spot>
@@ -131,7 +132,7 @@
   <section class="wrap idea" id="idea">
     <div class="section-tag reveal" data-reveal="left"><span class="rule"></span><span data-scramble>THE IDEA</span></div>
     <h2 class="section-title reveal" data-reveal="wipe">Two machines, one link.</h2>
-    <p class="section-lede reveal" data-reveal="up">OBS runs on the rig that captures and encodes. These tools run on the machine you actually work on. Between them is OBS's own WebSocket server — so the machine under load never has to be the machine you touch.</p>
+    <p class="section-lede reveal" data-reveal="up">OBS runs on the rig that captures and encodes. These tools run on the machine you actually work on. Between them is OBS's own WebSocket server — so the machine under load never has to be the machine you touch. The chat and go-live tools skip the rig entirely and talk straight to Twitch and YouTube.</p>
 
     <div class="idea-grid">
 
@@ -187,6 +188,21 @@
             <div><span class="c-dim">twi-bot: live for 2h 14m</span></div>
             <div><span class="c-text">you</span><span class="c-dim">:</span> thanks &lt;3</div>
           </div>
+
+          <div class="idea-panel term" data-idea="5">
+            <div><span class="c-purple">msm</span><span class="c-dim"> ▸ twitch + youtube</span></div>
+            <div class="c-green">● both ready — start streaming in OBS</div>
+            <div class="c-muted">title: friday night refactor</div>
+            <div class="c-muted">twitch 142 viewers · youtube 38</div>
+            <div class="c-dim">key ●●●●●●●●●●●● · reused</div>
+          </div>
+
+          <div class="idea-panel term chat" data-idea="6">
+            <div><span class="c-green">@somechannel</span><span class="c-dim">:</span> first!</div>
+            <div><span class="c-purple">member_3y</span><span class="c-dim">:</span> super chat · £5</div>
+            <div><span class="c-muted">— new member: kata —</span></div>
+            <div><span class="c-dim">quota 6.2k/10k · every 12.4s</span></div>
+          </div>
         </div>
 
         <div class="idea-dots" id="idea-dots" role="tablist" aria-label="Tool preview"></div>
@@ -225,7 +241,7 @@
             </div>
           </div>
         </div>
-        <div class="idea-caption">CAPTURING AND ENCODING.<br>BUSY, AND LEFT ALONE.<br><span class="c-muted">— TO TWITCH · RTMP</span></div>
+        <div class="idea-caption">CAPTURING AND ENCODING.<br>BUSY, AND LEFT ALONE.<br><span class="c-muted">— TO TWITCH + YOUTUBE · RTMP</span></div>
       </div>
 
     </div>
@@ -239,7 +255,7 @@
 
     <div class="map-frame reveal" data-reveal="scale">
       <div class="map-stage">
-        <svg class="map-svg" width="1040" height="580" viewBox="0 0 1040 580" aria-hidden="true">
+        <svg class="map-svg" width="1040" height="720" viewBox="0 0 1040 720" aria-hidden="true">
           <defs>
             <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <path class="mk-base" d="M 0 1 L 9 5 L 0 9" fill="none" stroke-width="1.6"></path>
@@ -256,18 +272,22 @@
           <g id="edges-packets"></g>
         </svg>
 
-        <div class="map-lab" data-lab="ws"   style="left:386px;top:112px">OBS-WEBSOCKET 5.X</div>
-        <div class="map-lab sm" data-lab="cmd"  style="left:398px;top:214px">COMMANDS OUT ▸</div>
-        <div class="map-lab sm" data-lab="mon"  style="left:418px;top:298px">MONITOR</div>
-        <div class="map-lab sm" data-lab="tel"  style="left:338px;top:404px">◂ SCENES, AUDIO, TELEMETRY</div>
-        <div class="map-lab sm" data-lab="rtmp" style="left:792px;top:184px">RTMP ▸</div>
-        <div class="map-lab sm" data-lab="chat" style="left:604px;top:458px">CHAT · IRC</div>
-        <div class="map-lab sm" data-lab="cap"  style="left:346px;top:30px">CAPTURES SCREEN + AUDIO</div>
+        <div class="map-lab" data-lab="ws"    style="left:392px;top:92px">OBS-WEBSOCKET 5.X</div>
+        <div class="map-lab sm" data-lab="cmd"   style="left:398px;top:214px">COMMANDS OUT ▸</div>
+        <div class="map-lab sm" data-lab="mon"   style="left:420px;top:300px">MONITOR</div>
+        <div class="map-lab sm" data-lab="tel"   style="left:336px;top:372px">◂ SCENES, AUDIO, TELEMETRY</div>
+        <div class="map-lab sm" data-lab="cfg"   style="left:470px;top:432px">TITLE · TAGS · CATEGORY ▸</div>
+        <div class="map-lab sm" data-lab="chat"  style="left:520px;top:504px">CHAT · IRC</div>
+        <div class="map-lab sm" data-lab="ychat" style="left:534px;top:596px">CHAT · DATA API</div>
+        <div class="map-lab sm" data-lab="rtmp"  style="left:762px;top:262px">RTMP ▸</div>
+        <div class="map-lab sm" data-lab="cap"   style="left:346px;top:22px">CAPTURES SCREEN + AUDIO</div>
 
-        <div class="zone" style="left:24px;top:68px;width:300px;height:476px"></div>
-        <div class="zone-label" style="left:40px;top:80px">WORKSTATION — WHERE YOU SIT</div>
-        <div class="zone" style="left:558px;top:100px;width:254px;height:216px"></div>
-        <div class="zone-label" style="left:574px;top:112px">STREAMING RIG</div>
+        <div class="zone" style="left:24px;top:64px;width:300px;height:620px"></div>
+        <div class="zone-label" style="left:40px;top:76px">WORKSTATION — WHERE YOU SIT</div>
+        <div class="zone" style="left:558px;top:60px;width:254px;height:208px"></div>
+        <div class="zone-label" style="left:574px;top:72px">STREAMING RIG</div>
+        <div class="zone" style="left:814px;top:290px;width:196px;height:258px"></div>
+        <div class="zone-label" style="left:830px;top:302px">DESTINATIONS</div>
 
         <div id="map-nodes"></div>
       </div>
@@ -297,8 +317,8 @@
 
   <section class="wrap toolkit" id="tools">
     <div class="section-tag reveal" data-reveal="left"><span class="rule"></span><span data-scramble>THE TOOLKIT</span></div>
-    <h2 class="section-title reveal" data-reveal="wipe">Five binaries, one workflow.</h2>
-    <p class="section-lede reveal" data-reveal="up">Each one does a single job well and talks the same protocol. Take all five, or take the one you need.</p>
+    <h2 class="section-title reveal" data-reveal="wipe">Seven binaries, one workflow.</h2>
+    <p class="section-lede reveal" data-reveal="up">Each one does a single job well and speaks the protocol its job needs. Take all seven, or take the one you need.</p>
     <div class="tool-grid" id="tool-grid"></div>
   </section>
 
@@ -375,7 +395,7 @@ obsctl tui</code>
       <div class="why-card reveal" data-reveal="stagger-self" data-spot data-tilt>
         <div class="why-icon">⬢</div>
         <h3>Single static binaries</h3>
-        <p>Rust and Crystal, linked against musl where it counts. Drop the file in <code class="inline-code">~/.local/bin</code> and it runs.</p>
+        <p>Rust, Crystal and Go, linked against musl where it counts. Drop the file in <code class="inline-code">~/.local/bin</code> and it runs.</p>
       </div>
       <div class="why-card reveal" data-reveal="stagger-self" data-spot data-tilt>
         <div class="why-icon">⇄</div>
@@ -417,8 +437,16 @@ obsctl tui</code>
         <div class="faq-body"><p>SceneDeck. It is a native GTK4 desktop app rather than a terminal tool — the same control surface, for when you want buttons instead of keys.</p></div>
       </details>
       <details class="faq-item">
-        <summary>Do I have to install all five?</summary>
-        <div class="faq-body"><p>No. They are separate binaries that happen to speak the same protocol. Most people start with one control tool and add <code class="inline-code">obs-stats</code> when they want to watch for dropped frames.</p></div>
+        <summary>Does any of this work with YouTube?</summary>
+        <div class="faq-body"><p>Two of them are built for it. <code class="inline-code">msm</code> sets up a Twitch stream and a YouTube broadcast from one form, and <code class="inline-code">yc</code> reads YouTube live chat in a terminal pane. Neither goes through OBS — they talk to the platforms directly, so they work whether or not you use the rest of the toolkit.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>Does msm start the stream for me?</summary>
+        <div class="faq-body"><p>No, and that is deliberate. It gets both platforms configured and then stops; you press <strong>Start Streaming</strong> in OBS when you are ready. If one platform fails to configure, the other is still set up and usable — the failure is shown in its own panel rather than rolling everything back.</p></div>
+      </details>
+      <details class="faq-item">
+        <summary>Do I have to install all seven?</summary>
+        <div class="faq-body"><p>No. They are separate binaries, and only the OBS control tools share a protocol. Most people start with one control tool, add <code class="inline-code">obs-stats</code> when they want to watch for dropped frames, and pick up a chat client for whichever platform they actually stream to.</p></div>
       </details>
       <details class="faq-item">
         <summary>Why pipe a script into a shell?</summary>
@@ -434,7 +462,7 @@ obsctl tui</code>
   </main>
 
   <footer class="wrap footer">
-    <span>© 2026 worxbend · all tools MIT licensed · Rust + Crystal</span>
+    <span>© 2026 worxbend · all tools MIT licensed · Rust, Crystal + Go</span>
     <a href="https://github.com/worxbend" rel="noopener">github.com/worxbend ↗</a>
   </footer>
 

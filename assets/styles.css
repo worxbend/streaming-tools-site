@@ -86,7 +86,9 @@
   --acc-obsctl-rs: #8ab0f0;
   --acc-obsctl:    #5fce93;
   --acc-obs-stats: #e0b05c;
+  --acc-msm:       #6fd3cc;
   --acc-twi:       #d98a8a;
+  --acc-yc:        #f0736b;
 
   --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   --sans: 'Space Grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -169,7 +171,9 @@
   --acc-obsctl-rs: #1f5aa8;
   --acc-obsctl:    #15795a;
   --acc-obs-stats: #8a6112;
+  --acc-msm:       #0f7a74;
   --acc-twi:       #ad4038;
+  --acc-yc:        #c0392b;
 }
 
 /* On paper the light pools colour instead of adding it, so the discs need a
@@ -692,7 +696,7 @@ h1, h2 { text-wrap: pretty; }
   border-radius: 12px;
   overflow-x: auto;
 }
-.map-stage { position: relative; width: 1040px; height: 580px; margin: 0 auto; }
+.map-stage { position: relative; width: 1040px; height: 720px; margin: 0 auto; }
 .map-svg { position: absolute; inset: 0; pointer-events: none; }
 
 /* Edges and arrowheads are coloured here rather than in JS, so a theme swap
