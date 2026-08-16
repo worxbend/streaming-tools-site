@@ -395,6 +395,39 @@ h1, h2 { text-wrap: pretty; }
 
 .hero { padding: 56px 32px 24px; }
 
+/* Two columns once there is room for them: copy on the left, plasma orb on
+   the right. Below that width the orb column is removed entirely — it is
+   decoration, and a phone should not be asked to run a second WebGL context
+   on top of the background engine. */
+.hero-copy { min-width: 0; }
+.hero-orb { display: none; }
+
+@media (min-width: 1080px) {
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 440px);
+    gap: 48px;
+    align-items: center;
+  }
+  .hero-orb {
+    display: block;
+    position: relative;
+    aspect-ratio: 1 / 1;
+    /* Stay invisible until the WebGL context is actually live, so there is no
+       flash of empty box while the CDN module is still downloading. */
+    opacity: 0;
+    transition: opacity .9s ease .15s;
+  }
+  .hero-orb.is-live { opacity: 1; }
+  .hero-orb canvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+
 /* ---------- particle headline ----------
 
    When hero-text.js takes over, the real <h1> text is painted transparent

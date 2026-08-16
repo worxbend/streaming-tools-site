@@ -84,6 +84,7 @@
   <main>
 
   <section class="wrap hero" id="hero">
+   <div class="hero-copy">
     <div class="eyebrow reveal" data-reveal="left"><span class="eyebrow-dot"></span><span data-scramble>OBS STUDIO · TWITCH · YOUTUBE · TWO-MACHINE SETUP</span></div>
     <h1 class="hero-title reveal" data-reveal="up">Your stream. Your terminal. <span class="accent">Zero alt-tabs.</span></h1>
     <p class="hero-lede reveal" data-reveal="up">Seven small, sharp, open-source utilities for OBS Studio, Twitch and YouTube — built in Rust, Crystal and Go, terminal-first, each one a single binary.</p>
@@ -105,6 +106,12 @@
       <span class="scroll-cue-rail"><span class="scroll-cue-dot"></span></span>
       <span class="scroll-cue-text">SCROLL</span>
     </div>
+   </div>
+
+   <!-- Decorative only: a morphing plasma orb rendered with three.js. The
+        column is display:none below the two-column breakpoint, and hero-orb.js
+        refuses to build a WebGL context for a zero-width host. -->
+   <div class="hero-orb" id="hero-orb" aria-hidden="true"></div>
   </section>
 
   <section class="wrap stats-band" aria-label="At a glance">
@@ -491,5 +498,6 @@ obsctl tui</code>
 }
 </script>
 <script type="module" src="assets/hero-text.js"></script>
+<script type="module" src="assets/hero-orb.js"></script>
 </body>
 </html>
