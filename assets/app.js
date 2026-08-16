@@ -83,7 +83,7 @@
     twi: {
       label: "twi", sub: "terminal chat client", chips: ["IRC"],
       name: "twi", kind: "Twitch chat client · Crystal",
-      desc: "Read and send Twitch chat from a terminal — no browser tab, no Electron, no chat window fighting for focus. It sits in a pane next to obs-stats, talking straight to Twitch IRC.",
+      desc: "Read and send Twitch chat from a terminal — no browser tab, no chat window fighting for focus. It sits in a pane next to obs-stats, talking straight to Twitch IRC.",
       detailChips: ["Crystal", "Twitch IRC", "terminal pane", "MIT"],
       connects: "workstation ──chat / IRC──▶ Twitch",
       // The README also documents a snap, but snapcraft.io/twi is not published
@@ -839,7 +839,7 @@
     },
     twi: {
       accent: "var(--acc-twi)",
-      short: "Twitch chat in a terminal pane — no browser tab, no Electron, no window stealing focus.",
+      short: "Twitch chat in a terminal pane — no browser tab, no window stealing focus.",
       feats: ["Reads and sends over Twitch IRC", "Sits beside obs-stats in a split", "Stays on your workstation"]
     },
     yc: {
@@ -1445,9 +1445,9 @@
     "OBS-WEBSOCKET 5.X", "127.0.0.1:4455", "SCENES", "AUDIO MIXER", "TELEMETRY",
     "RUST", "CRYSTAL", "GO", "RATATUI", "GTK4", "TWITCH IRC", "YOUTUBE DATA API",
     "QUOTA-AWARE POLLING", "ONE FORM, BOTH PLATFORMS", "STATIC MUSL BUILDS",
-    "JSON ENVELOPES", "HONEST EXIT CODES", "0 ELECTRON APPS", "MIT LICENSED"
+    "JSON ENVELOPES", "HONEST EXIT CODES", "SINGLE BINARIES", "MIT LICENSED"
   ];
-  var TICKER_HOT = { "0 ELECTRON APPS": 1, TELEMETRY: 1, "MIT LICENSED": 1, "YOUTUBE DATA API": 1 };
+  var TICKER_HOT = { "SINGLE BINARIES": 1, TELEMETRY: 1, "MIT LICENSED": 1, "YOUTUBE DATA API": 1 };
 
   function buildTicker() {
     var track = document.getElementById("ticker-track");
