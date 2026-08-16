@@ -395,6 +395,31 @@ h1, h2 { text-wrap: pretty; }
 
 .hero { padding: 56px 32px 24px; }
 
+/* ---------- particle headline ----------
+
+   When hero-text.js takes over, the real <h1> text is painted transparent
+   rather than removed: it still holds the layout the particles were sampled
+   from, and screen readers, find-in-page and text selection all still work.
+   The canvas is stretched past the h1's box so particles shoved by the cursor
+   have somewhere to go instead of being clipped at the edge.                */
+
+.hero-title.has-particles { position: relative; color: transparent; }
+.hero-title.has-particles .accent {
+  background: none;
+  color: transparent;
+  animation: none;
+}
+.hero-title.has-particles::selection,
+.hero-title.has-particles ::selection { color: var(--text); }
+
+.hero-particles {
+  position: absolute;
+  top: -90px;
+  left: -90px;
+  pointer-events: none;
+  z-index: 1;
+}
+
 .eyebrow {
   font-family: var(--mono);
   font-size: 13px;

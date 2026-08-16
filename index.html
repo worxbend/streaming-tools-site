@@ -17,6 +17,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css">
 
@@ -84,7 +85,7 @@
 
   <section class="wrap hero" id="hero">
     <div class="eyebrow reveal" data-reveal="left"><span class="eyebrow-dot"></span><span data-scramble>OBS STUDIO · TWITCH · YOUTUBE · TWO-MACHINE SETUP</span></div>
-    <h1 class="hero-title reveal" data-reveal="none" data-split>Your stream. Your terminal. <span class="accent">Zero alt-tabs.</span></h1>
+    <h1 class="hero-title reveal" data-reveal="up">Your stream. Your terminal. <span class="accent">Zero alt-tabs.</span></h1>
     <p class="hero-lede reveal" data-reveal="up">Seven small, sharp, open-source utilities for OBS Studio, Twitch and YouTube — built in Rust, Crystal and Go, terminal-first, each one a single binary.</p>
     <ul class="pills reveal" data-reveal="stagger">
       <li class="pill">RUST · CRYSTAL · GO</li>
@@ -477,5 +478,18 @@ obsctl tui</code>
 </button>
 
 <script src="assets/app.js" defer></script>
+
+<!-- three.js is pulled from a CDN as an ES module. The import map is what lets
+     the two modules below write `import * as THREE from "three"` — without it
+     a browser has no idea what the bare name "three" points at. Both modules
+     fail silently (leaving plain HTML behind) if this never loads. -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js"
+  }
+}
+</script>
+<script type="module" src="assets/hero-text.js"></script>
 </body>
 </html>
