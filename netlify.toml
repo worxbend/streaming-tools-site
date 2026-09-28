@@ -1,12 +1,12 @@
 [build]
-  # Static site — nothing to compile. Everything in the repo root is published as-is.
-  publish = "."
-  command = ""
+  # Publish the same allowlisted static artifact as GitHub Pages.
+  publish = "_site"
+  command = "npm run build"
 
 [build.environment]
-  NODE_VERSION = "20"
+  NODE_VERSION = "22"
 
-# Long-cache the fingerprint-free static assets but always revalidate HTML,
+# Cache static assets briefly but always revalidate HTML,
 # so a redeploy is picked up immediately.
 [[headers]]
   for = "/*"

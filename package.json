@@ -1,0 +1,25 @@
+{
+  "name": "streaming-tools-site",
+  "version": "2.0.0",
+  "private": true,
+  "description": "A static directory of open-source streaming tools by worxbend.",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/check.mjs",
+    "dev": "node scripts/serve.mjs",
+    "test": "npm run check && npm run test:e2e",
+    "test:e2e": "npm run build && playwright test --config=tests/playwright.config.mjs",
+    "format": "prettier --write index.html assets/*.js assets/*.css scripts/*.mjs tests/*.mjs package.json .github/workflows/*.yml",
+    "format:check": "prettier --check index.html assets/*.js assets/*.css scripts/*.mjs tests/*.mjs package.json .github/workflows/*.yml"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
+    "parse5": "^8.0.1",
+    "prettier": "^3.9.9"
+  }
+}
