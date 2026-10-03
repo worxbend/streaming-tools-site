@@ -1,6 +1,6 @@
 # worxbend — streaming tools
 
-A lightweight, accessible directory of seven open-source streaming tools. Explore how OBS Studio, Twitch and YouTube fit together, find a tool by purpose, and copy its installation command.
+A lightweight, accessible directory of eight open-source streaming tools. Explore how OBS Studio, Twitch and YouTube fit together, find a tool by purpose, and install it with a shell command or the Android APK download.
 
 **Live:** https://worxbend.github.io/streaming-tools-site/
 
@@ -45,15 +45,16 @@ Tests use a dedicated local server on port 4174. Test artifacts stay in the syst
 
 ## Content maintenance
 
-There are seven installable tools and three platform records. Stable data keys are `scenedeck`, `obsctl-rs`, `obsctl`, `obs-stats`, `twi`, `yc`, `msm`, `obs`, `twitch` and `youtube`.
+There are eight installable tools and three platform records. Stable data keys are `scenedeck`, `scenedeck-android`, `obsctl-rs`, `obsctl`, `obs-stats`, `twi`, `yc`, `msm`, `obs`, `twitch` and `youtube`.
 
 When editing a tool, update `assets/data.js` and its matching static `index.html` row. Preserve installer shell requirements: **yc requires Bash**. Install commands are displayed and copied, never executed by the site. Each shell installer has an inspection link; source and release links provide alternatives.
 
 Categories are `control`, `monitor`, `chat` and `live`. Keep `#tool-<id>` links stable: they reveal the appropriate directory entry even when a different filter is active. Native `<details>` keeps documentation reachable without JavaScript.
 
-Facts checked against upstream repositories during the September 2026 redesign:
+Tool facts checked against upstream repositories in September–October 2026:
 
 - SceneDeck is a Rust/GTK4 Linux desktop remote.
+- SceneDeck Android is a Kotlin/Jetpack Compose phone and tablet OBS remote. It requires Android 9+ and OBS 28+, and is installed from GitHub release APKs. Its directory entry includes UI previews, features, installation, connection setup and privacy links.
 - obsctl-rs is a Rust daemon, terminal interface and CLI.
 - obsctl is a Crystal daemon, terminal interface and CLI.
 - obs-stats is a Rust OBS telemetry dashboard; desktop alerts are Linux-only.

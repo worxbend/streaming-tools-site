@@ -10,7 +10,7 @@
     <title>worxbend — Your stream. Your terminal.</title>
     <meta
       name="description"
-      content="Seven open-source tools for OBS Studio, Twitch and YouTube. Find your desktop remote, terminal dashboard, chat client and go-live toolkit."
+      content="Eight open-source tools for OBS Studio, Twitch and YouTube. Find your Android or desktop remote, terminal dashboard, chat client and go-live toolkit."
     />
     <meta name="color-scheme" content="dark light" />
     <meta name="theme-color" content="#101310" />
@@ -21,7 +21,7 @@
     />
     <meta
       property="og:description"
-      content="Seven independent tools. One connected streaming workflow. Open source, built in Rust, Crystal and Go."
+      content="Eight independent tools. One connected streaming workflow. Open source, built in Rust, Crystal, Go and Kotlin."
     />
     <meta
       property="og:image"
@@ -122,8 +122,8 @@
             Your stream.<br />Your terminal.<br /><span>Zero alt-tabs.</span>
           </h1>
           <p>
-            Seven open-source tools for OBS Studio, Twitch and YouTube. Control
-            your stream from the machine you actually work on.
+            Eight open-source tools for OBS Studio, Twitch and YouTube. Control
+            your stream from your workstation, Android phone or tablet.
           </p>
           <div class="hero-actions">
             <a href="#tools" class="button primary"
@@ -209,8 +209,8 @@
       </section>
       <div class="facts">
         <div class="wrap facts-inner">
-          <div><strong>07</strong><span>independent tools</span></div>
-          <div><strong>03</strong><span>languages</span></div>
+          <div><strong>08</strong><span>independent tools</span></div>
+          <div><strong>04</strong><span>languages</span></div>
           <div><strong>01</strong><span>connected workflow</span></div>
         </div>
       </div>
@@ -222,7 +222,7 @@
       >
         <div class="section-heading">
           <h2 id="setup-title">
-            Two machines.<br />
+            Your devices.<br />
             One flow.
           </h2>
           <p>
@@ -233,7 +233,7 @@
         <div class="topology" id="map-stage" data-selected="obsctl-rs">
           <div id="map-nodes" class="topology-grid">
             <div class="map-box workstation">
-              <h3>Your workstation</h3>
+              <h3>Workstation &amp; Android</h3>
               <div class="workstation-tools">
                 <button
                   class="map-node"
@@ -287,6 +287,17 @@
                   aria-pressed="false"
                 >
                   yc
+                </button>
+              </div>
+              <div class="mobile-tools">
+                <span>Phone or tablet · OBS controls</span>
+                <button
+                  class="map-node"
+                  data-node="scenedeck-android"
+                  type="button"
+                  aria-pressed="false"
+                >
+                  SceneDeck Android
                 </button>
               </div>
             </div>
@@ -381,8 +392,9 @@
         </div>
         <p class="setup-note">
           One machine works, too. Connect the OBS tools to
-          <code>127.0.0.1:4455</code>. Chat and broadcast setup talk directly to
-          the platforms.
+          <code>127.0.0.1:4455</code>. On Android, use your OBS computer’s local
+          network address instead. Chat and broadcast setup talk directly to the
+          platforms.
         </p>
       </section>
 
@@ -408,7 +420,7 @@
             aria-label="Filter tools by purpose"
           >
             <button type="button" data-filter="all" aria-pressed="true">
-              All tools <span>07</span></button
+              All tools <span>08</span></button
             ><button type="button" data-filter="control" aria-pressed="false">
               Control</button
             ><button type="button" data-filter="monitor" aria-pressed="false">
@@ -419,7 +431,7 @@
               Go live
             </button>
           </div>
-          <span id="tool-count" class="overline" role="status">7 tools</span>
+          <span id="tool-count" class="overline" role="status">8 tools</span>
         </div>
         <div class="directory-labels" aria-hidden="true">
           <span>#</span><span>Tool / purpose</span><span>Language</span
@@ -461,13 +473,274 @@
           </article>
           <article
             class="tool-row"
+            data-tool="scenedeck-android"
+            data-category="control"
+            id="tool-scenedeck-android"
+          >
+            <details class="tool-details">
+              <summary>
+                <span class="tool-number">02</span>
+                <span class="tool-heading">
+                  <span class="tool-name" role="heading" aria-level="3"
+                    >SceneDeck Android</span
+                  >
+                  <span class="tool-description"
+                    >An Android OBS remote with a scene deck, audio mixer,
+                    stream controls and live stats.</span
+                  >
+                </span>
+                <span class="tool-language">Kotlin</span>
+                <span class="install-trigger">
+                  <span>View installation</span>
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#arrow" />
+                  </svg>
+                </span>
+              </summary>
+              <div class="install-content">
+                <p class="install-description">
+                  Turn your Android phone or tablet into an OBS Studio control
+                  deck. OBS runs on your computer; SceneDeck controls it over
+                  WebSocket. Available as an APK from GitHub releases.
+                </p>
+                <div class="install-block">
+                  <p class="install-label">GITHUB RELEASE — ANDROID APK</p>
+                  <a
+                    class="button primary apk-download"
+                    href="https://github.com/worxbend/scenedeck-android/releases/latest/download/scenedeck-android-release.apk"
+                    >Download Android APK ↗</a
+                  >
+                  <p class="install-description">
+                    GitHub releases are the current installation source.
+                  </p>
+                  <div class="install-links">
+                    <a
+                      href="https://github.com/worxbend/scenedeck-android/releases"
+                      >All releases, notes &amp; checksums ↗</a
+                    >
+                  </div>
+                </div>
+                <div class="tool-documentation">
+                  <div
+                    class="app-screenshots"
+                    aria-label="SceneDeck Android UI previews"
+                  >
+                    <figure>
+                      <img
+                        src="assets/scenedeck-android/scenes.png"
+                        width="1078"
+                        height="2399"
+                        alt="SceneDeck Android Scenes screen with scene cards and OBS controls"
+                        loading="lazy"
+                      />
+                      <figcaption>Scenes</figcaption>
+                    </figure>
+                    <figure>
+                      <img
+                        src="assets/scenedeck-android/mixer.png"
+                        width="1078"
+                        height="2399"
+                        alt="SceneDeck Android Mixer screen with audio faders and live levels"
+                        loading="lazy"
+                      />
+                      <figcaption>Mixer</figcaption>
+                    </figure>
+                    <figure>
+                      <img
+                        src="assets/scenedeck-android/stats.png"
+                        width="1078"
+                        height="2399"
+                        alt="SceneDeck Android Stats screen with stream health gauges and trends"
+                        loading="lazy"
+                      />
+                      <figcaption>Stats</figcaption>
+                    </figure>
+                  </div>
+                  <p class="app-preview-note">
+                    Application UI previews with representative OBS data.
+                  </p>
+                  <div class="app-guide-grid">
+                    <section aria-labelledby="android-features">
+                      <h4 id="android-features">
+                        Your OBS setup, in your hand
+                      </h4>
+                      <ul>
+                        <li>
+                          <strong>Scene deck:</strong> switch scenes from a
+                          numbered grid, search, filter your Primary scenes,
+                          reorder cards, and choose local colors, icons and
+                          roles. Optional OBS screenshot previews show scene
+                          content.
+                        </li>
+                        <li>
+                          <strong>Studio Mode:</strong> select a preview scene,
+                          transition or cut to program, choose a transition and
+                          duration, or use the T-bar gesture.
+                        </li>
+                        <li>
+                          <strong>Mixer:</strong> adjust faders, mute channels
+                          and watch live meters across global, scene and nested
+                          audio sources. Lock sliders, pin a scope, or adjust
+                          balance, sync offset and monitoring.
+                        </li>
+                        <li>
+                          <strong>Outputs:</strong> start and stop streaming and
+                          recording, control the virtual camera, and choose
+                          confirmation settings. Persistent LIVE / REC
+                          indicators and separate timers show broadcast state.
+                        </li>
+                        <li>
+                          <strong>Stream health:</strong> watch FPS, bitrate,
+                          dropped frames, CPU, memory, render time and
+                          congestion, with gauges and a rolling two-minute
+                          history.
+                        </li>
+                        <li>
+                          <strong>Inventory &amp; Doctor:</strong> curate scene
+                          roles locally, inspect the dependency graph, find
+                          stale entries and hierarchy issues, and import or
+                          export your registry as YAML.
+                        </li>
+                        <li>
+                          <strong>Mobile extras:</strong> save multiple
+                          connections, pair by QR code, reconnect automatically,
+                          keep an optional background connection, and use a
+                          home-screen widget for up to six Primary scenes.
+                          Automation can switch scenes through
+                          <code>scenedeck://scene/{name}</code>.
+                        </li>
+                        <li>
+                          <strong>Fine controls:</strong> toggle source
+                          visibility and play, pause or restart media sources.
+                          Choose light, dark or system appearance, palettes,
+                          dynamic color, motion, haptics, density and
+                          keep-screen-on settings.
+                        </li>
+                      </ul>
+                    </section>
+                    <div>
+                      <section aria-labelledby="android-requirements">
+                        <h4 id="android-requirements">What you need</h4>
+                        <p>
+                          Android 9 or newer on a phone or tablet, and OBS
+                          Studio 28 or newer on a computer. Enable the built-in
+                          OBS WebSocket 5.x server. Your Android device must be
+                          able to reach that computer, normally over the same
+                          private network.
+                        </p>
+                        <p>
+                          OBS captures, records and broadcasts on your computer.
+                          SceneDeck provides remote controls; scene curation
+                          stays local and preserves your OBS scene collection.
+                          Replay Buffer and OBS scene editing are outside the
+                          app’s current scope.
+                        </p>
+                      </section>
+                      <section aria-labelledby="android-install">
+                        <h4 id="android-install">Install the Android app</h4>
+                        <ol>
+                          <li>
+                            Open
+                            <a
+                              href="https://github.com/worxbend/scenedeck-android/releases"
+                              >SceneDeck Android releases</a
+                            >
+                            on your device and download
+                            <code>scenedeck-android-release.apk</code>. Choose
+                            the APK asset for installation; the AAB is a
+                            publishing bundle.
+                          </li>
+                          <li>
+                            Open the downloaded APK. If Android asks, allow your
+                            browser or file manager to
+                            <strong>install unknown apps</strong>, then confirm
+                            installation.
+                          </li>
+                          <li>
+                            Open SceneDeck. You can turn off that installer
+                            permission again in Android settings after
+                            installing.
+                          </li>
+                          <li>
+                            For updates, download and install a newer release
+                            APK. Release notes and <code>SHA256SUMS</code> are
+                            available on the release page.
+                          </li>
+                        </ol>
+                      </section>
+                      <section aria-labelledby="android-connect">
+                        <h4 id="android-connect">Connect to OBS</h4>
+                        <ol>
+                          <li>
+                            In OBS, open
+                            <strong>Tools → WebSocket Server Settings</strong>,
+                            enable the server and set a password. The default
+                            port is <strong>4455</strong>.
+                          </li>
+                          <li>
+                            Connect your Android device to the same network. In
+                            SceneDeck, open
+                            <strong>More → Connections</strong> and add your
+                            computer’s local IP address, port and password, or
+                            scan an OBS connection QR code.
+                          </li>
+                          <li>
+                            Test the connection, then connect. Allow the
+                            WebSocket port through the computer’s firewall if
+                            needed. On your phone, use the computer’s address
+                            rather than <code>127.0.0.1</code>.
+                          </li>
+                          <li>
+                            Switch scenes, adjust audio, or start an output when
+                            ready. Being connected to OBS does not mean you are
+                            streaming.
+                          </li>
+                        </ol>
+                        <p>
+                          Use a trusted private network: the normal OBS
+                          <code>ws://</code> connection is not encrypted. Saved
+                          OBS passwords are encrypted on Android using
+                          Keystore-backed storage.
+                        </p>
+                      </section>
+                      <section aria-labelledby="android-privacy">
+                        <h4 id="android-privacy">Open source &amp; privacy</h4>
+                        <p>
+                          Built with Kotlin and Jetpack Compose, under the MIT
+                          license. No SceneDeck account is required. Profiles,
+                          preferences and scene curation stay on your device; QR
+                          pairing uses Google ML Kit, which collects technical
+                          diagnostics.
+                        </p>
+                        <p>
+                          <a href="scenedeck-privacy.html"
+                            >Read the full privacy policy</a
+                          >, explore the
+                          <a
+                            href="https://github.com/worxbend/scenedeck-android#readme"
+                            >documentation and source build instructions</a
+                          >, or get help through
+                          <a
+                            href="https://github.com/worxbend/scenedeck-android/issues"
+                            >GitHub issues</a
+                          >. SceneDeck is independent of the OBS Project.
+                        </p>
+                      </section>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </details>
+          </article>
+          <article
+            class="tool-row"
             data-tool="obsctl-rs"
             data-category="control"
             id="tool-obsctl-rs"
           >
             <details class="tool-details">
               <summary>
-                <span class="tool-number">02</span
+                <span class="tool-number">03</span
                 ><span class="tool-heading"
                   ><span class="tool-name" role="heading" aria-level="3"
                     >obsctl-rs</span
@@ -500,7 +773,7 @@
           >
             <details class="tool-details">
               <summary>
-                <span class="tool-number">03</span
+                <span class="tool-number">04</span
                 ><span class="tool-heading"
                   ><span class="tool-name" role="heading" aria-level="3"
                     >obsctl</span
@@ -533,7 +806,7 @@
           >
             <details class="tool-details">
               <summary>
-                <span class="tool-number">04</span
+                <span class="tool-number">05</span
                 ><span class="tool-heading"
                   ><span class="tool-name" role="heading" aria-level="3"
                     >obs-stats</span
@@ -566,7 +839,7 @@
           >
             <details class="tool-details">
               <summary>
-                <span class="tool-number">05</span
+                <span class="tool-number">06</span
                 ><span class="tool-heading"
                   ><span class="tool-name" role="heading" aria-level="3"
                     >twi</span
@@ -599,7 +872,7 @@
           >
             <details class="tool-details">
               <summary>
-                <span class="tool-number">06</span
+                <span class="tool-number">07</span
                 ><span class="tool-heading"
                   ><span class="tool-name" role="heading" aria-level="3"
                     >yc</span
@@ -632,7 +905,7 @@
           >
             <details class="tool-details">
               <summary>
-                <span class="tool-number">07</span
+                <span class="tool-number">08</span
                 ><span class="tool-heading"
                   ><span class="tool-name" role="heading" aria-level="3"
                     >multistream-manager</span
@@ -745,8 +1018,9 @@
               Choose <a href="#tool-scenedeck">SceneDeck</a> for a Linux desktop
               remote, <a href="#tool-obsctl-rs">obsctl-rs</a> for a terminal
               command center, or <a href="#tool-obs-stats">obs-stats</a> to
-              watch stream health. Every tool works independently; you do not
-              need all seven.
+              watch stream health. For your phone or tablet, choose
+              <a href="#tool-scenedeck-android">SceneDeck Android</a>. Every
+              tool works independently; you do not need all eight.
             </p>
           </details>
           <details>
@@ -775,7 +1049,7 @@
               </svg>
             </summary>
             <p>
-              Yes. All seven tools are MIT licensed and developed in the open on
+              Yes. All eight tools are MIT licensed and developed in the open on
               GitHub. You can inspect the source, read an installer before
               running it, or download a prebuilt release.
             </p>
@@ -794,7 +1068,7 @@
       </div>
       <div class="wrap footer-meta">
         <a href="scenedeck-privacy.html">SceneDeck Android privacy policy</a>
-        <span>Rust · Crystal · Go / Open source</span>
+        <span>Rust · Crystal · Go · Kotlin / Open source</span>
       </div>
     </footer>
   </body>

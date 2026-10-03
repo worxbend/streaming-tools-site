@@ -473,6 +473,16 @@ h2 {
   gap: 9px;
   padding: 0 16px 16px;
 }
+.mobile-tools {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border-top: 1px solid var(--line);
+}
+.mobile-tools > span {
+  color: var(--muted);
+  font: 10px/1.6 var(--mono);
+}
 .map-node {
   background: transparent;
   border: 1px solid var(--line);
@@ -828,6 +838,81 @@ h2 {
 }
 .copy-status:empty {
   display: none;
+}
+.apk-download {
+  max-width: 100%;
+  text-decoration: none !important;
+}
+.app-screenshots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  max-width: 850px;
+  margin-top: 32px;
+}
+.app-screenshots figure {
+  min-width: 0;
+  margin: 0;
+}
+.app-screenshots img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.app-screenshots figcaption {
+  margin-top: 12px;
+  color: var(--muted);
+  font: 12px/1.6 var(--mono);
+}
+.app-preview-note {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.app-guide-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 40px;
+  font-size: 14px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.app-guide-grid h4 {
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1.4;
+  margin: 28px 0 16px;
+}
+.app-guide-grid p,
+.app-guide-grid li {
+  color: var(--muted);
+}
+.app-guide-grid ul,
+.app-guide-grid ol {
+  padding-left: 22px;
+}
+.app-guide-grid li + li {
+  margin-top: 12px;
+}
+.app-guide-grid strong {
+  color: var(--text);
+}
+.app-guide-grid code {
+  font: 12px/1.8 var(--mono);
+}
+@media (max-width: 900px) {
+  .app-guide-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+}
+@media (max-width: 600px) {
+  .app-screenshots {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 280px;
+  }
 }
 .start-band {
   background: var(--surface);

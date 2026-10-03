@@ -38,6 +38,43 @@ window.STREAMING_TOOLS = {
     site: "https://worxbend.github.io/scenedeck/",
     repo: "https://github.com/worxbend/scenedeck",
   },
+  "scenedeck-android": {
+    category: "control",
+    short:
+      "An Android OBS remote with a scene deck, audio mixer, stream controls and live stats.",
+    label: "SceneDeck Android",
+    sub: "phone & tablet remote",
+    chips: ["Android", "Kotlin"],
+    name: "SceneDeck Android",
+    kind: "phone & tablet remote · Kotlin · Android 9+",
+    desc: "Turn your Android phone or tablet into an OBS Studio control deck. Switch scenes, mix audio, manage streaming and recording, and watch stream health from your touchscreen. OBS runs on your computer; SceneDeck controls it over WebSocket without broadcasting video from your phone. Available as an APK from GitHub releases.",
+    detailChips: [
+      "Kotlin",
+      "Jetpack Compose",
+      "Android 9+",
+      "OBS 28+",
+      "WebSocket 5.x",
+      "GitHub APK",
+      "MIT",
+    ],
+    connects:
+      "Android phone / tablet ──commands──▶ OBS computer ──status + previews──▶ back",
+    installs: [
+      {
+        tag: "GITHUB RELEASE — ANDROID APK",
+        href: "https://github.com/worxbend/scenedeck-android/releases/latest/download/scenedeck-android-release.apk",
+        text: "Download Android APK ↗",
+        note: "Install on your phone or tablet. GitHub releases are the current installation source.",
+        alt: {
+          text: "All releases, notes & checksums ↗",
+          href: "https://github.com/worxbend/scenedeck-android/releases",
+        },
+      },
+    ],
+    repo: "https://github.com/worxbend/scenedeck-android",
+    docs: "https://github.com/worxbend/scenedeck-android#readme",
+    privacy: "scenedeck-privacy.html",
+  },
   "obsctl-rs": {
     category: "control",
     short:

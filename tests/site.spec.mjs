@@ -16,14 +16,18 @@ test("page loads with a complete catalogue and no application errors", async ({
   await page.goto("/");
   await expect(page).toHaveTitle(/worxbend/i);
   await expect(page.locator("h1")).toBeVisible();
-  await expect(page.locator("#tool-grid .tool-row")).toHaveCount(7);
-  await expect(page.locator("#map-nodes .map-node")).toHaveCount(10);
+  await expect(page.locator("#tool-grid .tool-row")).toHaveCount(8);
+  await expect(page.locator("#map-nodes .map-node")).toHaveCount(11);
   await expect(page.locator("#sel-name")).not.toBeEmpty();
   const brokenImages = await page
     .locator("img")
     .evaluateAll((images) =>
       images
-        .filter((image) => !image.complete || image.naturalWidth === 0)
+        .filter(
+          (image) =>
+            !image.closest("details:not([open])") &&
+            (!image.complete || image.naturalWidth === 0),
+        )
         .map((image) => image.src),
     );
   expect(brokenImages).toEqual([]);
@@ -61,7 +65,48 @@ test("tool categories filter the directory and restore all tools", async ({
   await expect(shown).toHaveCount(2);
   await expect(shown).toContainText(["twi", "yc"]);
   await page.locator('[data-filter="all"]').click();
-  await expect(shown).toHaveCount(7);
+  await expect(shown).toHaveCount(8);
+});
+
+test("Android remote links to an APK and keeps its guide when enhanced", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.locator('[data-filter="control"]').click();
+  await expect(page.locator("#tool-grid .tool-row:visible")).toHaveCount(4);
+  const node = page.locator('.map-node[data-node="scenedeck-android"]');
+  await node.click();
+  await expect(page.locator("#sel-name")).toHaveText("SceneDeck Android");
+  await expect(page.locator("#sel-connects")).toContainText(
+    "Android phone / tablet",
+  );
+  await page.locator("#sel-install").click();
+  const row = page.locator("#tool-scenedeck-android");
+  await expect(row.locator("details")).toHaveAttribute("open", "");
+  await expect(
+    row.getByRole("link", { name: "Download Android APK" }),
+  ).toHaveAttribute(
+    "href",
+    "https://github.com/worxbend/scenedeck-android/releases/latest/download/scenedeck-android-release.apk",
+  );
+  await expect(row.locator(".copy-button")).toHaveCount(0);
+  await expect(row.locator(".install-command")).toHaveCount(0);
+  await expect(
+    row.getByRole("heading", { name: "Install the Android app" }),
+  ).toBeVisible();
+  await expect(
+    row.getByRole("heading", { name: "Connect to OBS" }),
+  ).toBeVisible();
+  await expect(row.locator(".app-screenshots img")).toHaveCount(3);
+  for (const image of await row.locator(".app-screenshots img").all()) {
+    await image.scrollIntoViewIfNeeded();
+    await expect
+      .poll(() => image.evaluate((img) => img.complete && img.naturalWidth > 0))
+      .toBe(true);
+  }
+  await row.getByRole("link", { name: "Read the full privacy policy" }).click();
+  await expect(page).toHaveURL(/scenedeck-privacy\.html$/);
+  await expect(page.locator("h1")).toHaveText("Privacy Policy");
 });
 
 test("content stays within narrow, tablet and desktop viewports", async ({
@@ -131,7 +176,7 @@ test("essential introduction and navigation remain available without JavaScript"
   const page = await context.newPage();
   await page.goto("http://127.0.0.1:4174/");
   await expect(page.locator("h1")).toBeVisible();
-  await expect(page.locator("#tool-grid .tool-row")).toHaveCount(7);
+  await expect(page.locator("#tool-grid .tool-row")).toHaveCount(8);
   await expect(page.locator("#nav a").first()).toBeVisible();
   await page.locator('#nav a[href="#tools"]').click();
   await expect(page).toHaveURL(/#tools$/);
@@ -139,6 +184,17 @@ test("essential introduction and navigation remain available without JavaScript"
   await expect(
     page.locator("#tool-grid .tool-row").first().locator(".tool-details"),
   ).toHaveAttribute("open", "");
+  const android = page.locator("#tool-scenedeck-android");
+  await android.locator("summary").click();
+  await expect(
+    android.getByRole("link", { name: "Download Android APK" }),
+  ).toBeVisible();
+  await expect(
+    android.getByRole("heading", { name: "Install the Android app" }),
+  ).toBeVisible();
+  await expect(
+    android.getByRole("heading", { name: "Connect to OBS" }),
+  ).toBeVisible();
   await context.close();
 });
 

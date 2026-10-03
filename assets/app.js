@@ -121,6 +121,7 @@
     const content = query(".install-content", row);
     if (!tool || !content || content.dataset.populated) return;
     content.dataset.populated = "true";
+    const documentation = query(".tool-documentation", content);
     content.replaceChildren();
     content.append(element("p", "install-description", tool.desc));
     const chips = element("ul", "detail-chips");
@@ -131,6 +132,20 @@
     (tool.installs || []).forEach((install) => {
       const block = element("div", "install-block");
       block.append(element("p", "install-label", install.tag));
+      if (install.href) {
+        const download = link(install.text, install.href);
+        download.className = "button primary apk-download";
+        block.append(download);
+        if (install.note)
+          block.append(element("p", "install-description", install.note));
+        if (install.alt) {
+          const links = element("div", "install-links");
+          links.append(link(install.alt.text, install.alt.href));
+          block.append(links);
+        }
+        content.append(block);
+        return;
+      }
       const pre = element("pre", "install-command");
       pre.tabIndex = 0;
       pre.setAttribute(
@@ -154,9 +169,12 @@
       if (links.childElementCount) block.append(links);
       content.append(block);
     });
+    if (documentation) content.append(documentation);
     const links = element("div", "project-links");
     if (tool.repo) links.append(link("Source on GitHub ↗", tool.repo));
     if (tool.site) links.append(link("Project website ↗", tool.site));
+    if (tool.docs) links.append(link("Documentation ↗", tool.docs));
+    if (tool.privacy) links.append(link("Privacy policy", tool.privacy));
     content.append(links);
   }
 
