@@ -34,6 +34,7 @@ Tests use a dedicated local server on port 4174. Test artifacts stay in the syst
 | File | Responsibility |
 | --- | --- |
 | `index.html` | Semantic page, complete static tool directory, no-JS documentation links |
+| `scenedeck-privacy.html` | Public privacy policy for SceneDeck for Android, linked from the footer |
 | `assets/styles.css` | Theme tokens, responsive layouts, focus states, reduced-motion support |
 | `assets/data.js` | Verified tool descriptions, categories, source links and exact install commands |
 | `assets/app.js` | Progressive enhancements: filters, map selection, copy, preview, theme and menu |

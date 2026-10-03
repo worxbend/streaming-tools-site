@@ -8,6 +8,7 @@ await rm(output, { recursive: true, force: true });
 await mkdir(output);
 for (const file of [
   "index.html",
+  "scenedeck-privacy.html",
   "favicon.svg",
   "assets",
   ".nojekyll",
