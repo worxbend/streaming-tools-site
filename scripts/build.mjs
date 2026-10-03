@@ -6,7 +6,13 @@ const root = fileURLToPath(new URL("../", import.meta.url));
 const output = path.join(root, "_site");
 await rm(output, { recursive: true, force: true });
 await mkdir(output);
-for (const file of ["index.html", "favicon.svg", "assets", ".nojekyll"]) {
+for (const file of [
+  "index.html",
+  "favicon.svg",
+  "assets",
+  ".nojekyll",
+  "google44cddf06bf7e8cfb.html",
+]) {
   await cp(path.join(root, file), path.join(output, file), { recursive: true });
 }
 for (const file of ["CNAME", "robots.txt", "sitemap.xml", "404.html"]) {
