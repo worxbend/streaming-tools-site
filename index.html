@@ -7,18 +7,15 @@
       name="google-site-verification"
       content="bvUurVhU7E1Txc83xQIw6AxpOCQebjMRm8FUbsJY7nA"
     />
-    <title>worxbend — Your stream. Your terminal.</title>
+    <title>worxbend — Stay in your flow.</title>
     <meta
       name="description"
       content="Eight open-source tools for OBS Studio, Twitch and YouTube. Find your Android or desktop remote, terminal dashboard, chat client and go-live toolkit."
     />
     <meta name="color-scheme" content="dark light" />
-    <meta name="theme-color" content="#101310" />
+    <meta name="theme-color" content="#191524" />
     <meta property="og:type" content="website" />
-    <meta
-      property="og:title"
-      content="worxbend — Your stream. Your terminal."
-    />
+    <meta property="og:title" content="worxbend — Stay in your flow." />
     <meta
       property="og:description"
       content="Eight independent tools. One connected streaming workflow. Open source, built in Rust, Crystal, Go and Kotlin."
@@ -31,7 +28,7 @@
     <meta property="og:image:height" content="840" />
     <meta
       property="og:image:alt"
-      content="worxbend streaming tools: Your stream. Your terminal. Zero alt-tabs. with a terminal scene-switching preview."
+      content="worxbend streaming tools: Stay in your flow. A lavender studio with an interactive scene-control preview."
     />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
@@ -115,105 +112,174 @@
         </button>
       </div>
     </header>
-    <main id="main">
-      <section class="wrap hero" aria-labelledby="hero-title">
-        <div class="hero-copy">
-          <h1 id="hero-title">
-            Your stream.<br />Your terminal.<br /><span>Zero alt-tabs.</span>
-          </h1>
-          <p>
-            Eight open-source tools for OBS Studio, Twitch and YouTube. Control
-            your stream from your workstation, Android phone or tablet.
-          </p>
-          <div class="hero-actions">
-            <a href="#tools" class="button primary"
-              >Explore the toolkit
-              <svg class="icon" aria-hidden="true">
-                <use href="#arrow" /></svg></a
-            ><a href="#map" class="button secondary"
-              >See the setup
-              <svg class="icon" aria-hidden="true"><use href="#arrow" /></svg
-            ></a>
-          </div>
-        </div>
-        <div class="terminal" aria-label="Interactive scene switching preview">
-          <div class="terminal-bar">
-            <span><strong>obsctl</strong> / preview</span
-            ><span class="demo-label">DEMO</span>
-          </div>
-          <div class="terminal-main">
-            <div class="scene-panel">
-              <span class="terminal-label">SCENES</span>
-              <div class="scene-list" role="group" aria-label="Preview scenes">
-                <button type="button" data-scene="Intro" aria-pressed="false">
-                  Intro</button
-                ><button
-                  type="button"
-                  data-scene="Gameplay"
-                  aria-pressed="true"
-                >
-                  Gameplay</button
-                ><button type="button" data-scene="BRB" aria-pressed="false">
-                  BRB
-                </button>
-              </div>
+    <main id="main" tabindex="-1">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="wrap hero-inner">
+          <div class="hero-copy">
+            <p class="hero-intro">
+              <span class="signal-dot" aria-hidden="true"></span> Independent
+              tools for live creators
+            </p>
+            <h1 id="hero-title">Stay in<br />your flow.</h1>
+            <p>
+              Less window juggling. More live creating. Eight open-source tools
+              that put OBS, Twitch and YouTube within reach.
+            </p>
+            <div class="hero-actions">
+              <a href="#tools" class="button primary"
+                >Find your tools
+                <svg class="icon" aria-hidden="true"><use href="#arrow" /></svg
+              ></a>
+              <a href="#map" class="hero-link"
+                >See how it connects
+                <svg class="icon" aria-hidden="true"><use href="#arrow" /></svg
+              ></a>
             </div>
-            <div class="audio-panel">
-              <span class="terminal-label">AUDIO</span>
-              <div class="audio-row">
-                <span>Mic/Aux</span
-                ><span
-                  class="meter"
-                  style="--level: 64%"
-                  aria-hidden="true"
-                ></span
-                ><span>−6.1 dB</span>
+            <p class="hero-footnote">
+              Your desktop. Your terminal. Your phone.
+            </p>
+          </div>
+          <div class="signal-stage" data-scene="Gameplay">
+            <svg
+              class="signal-cable"
+              viewBox="0 0 640 600"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M-20 95H400C620 95 620 490 410 490H220C40 490 40 215 220 215H660"
+              />
+              <path
+                d="M-20 122H400C580 122 580 463 410 463H220C80 463 80 242 220 242H660"
+              />
+            </svg>
+            <div
+              class="terminal"
+              aria-label="Interactive scene switching preview"
+            >
+              <div class="terminal-bar">
+                <span
+                  ><strong>obsctl</strong
+                  ><span class="terminal-caption"> / scene control</span></span
+                ><span class="demo-label">Local demo</span>
               </div>
-              <div class="audio-row">
-                <span>Desktop</span
-                ><span
-                  class="meter"
-                  style="--level: 43%"
-                  aria-hidden="true"
-                ></span
-                ><span>−12.4 dB</span>
+              <div class="preview-monitor" aria-hidden="true">
+                <div class="preview-orbit"></div>
+                <span class="preview-caption">Selected scene</span
+                ><strong id="preview-scene">Gameplay</strong
+                ><span class="preview-marker">Preview only</span>
               </div>
-              <div class="audio-row">
-                <span>Browser</span
-                ><span
-                  class="meter"
-                  style="--level: 24%"
-                  aria-hidden="true"
-                ></span
-                ><span>−18.7 dB</span>
+              <div class="terminal-main">
+                <div class="scene-panel">
+                  <span class="terminal-label">Switch a scene</span>
+                  <div
+                    class="scene-list"
+                    role="group"
+                    aria-label="Preview scenes"
+                  >
+                    <button
+                      type="button"
+                      data-scene="Intro"
+                      aria-pressed="false"
+                    >
+                      Intro</button
+                    ><button
+                      type="button"
+                      data-scene="Gameplay"
+                      aria-pressed="true"
+                    >
+                      Gameplay</button
+                    ><button
+                      type="button"
+                      data-scene="BRB"
+                      aria-pressed="false"
+                    >
+                      BRB
+                    </button>
+                  </div>
+                </div>
+                <div class="audio-panel">
+                  <span class="terminal-label">Example audio levels</span>
+                  <div class="audio-row">
+                    <span>Mic/Aux</span
+                    ><span
+                      class="meter"
+                      style="--level: 64%"
+                      aria-hidden="true"
+                    ></span
+                    ><span>−6.1 dB</span>
+                  </div>
+                  <div class="audio-row">
+                    <span>Desktop</span
+                    ><span
+                      class="meter"
+                      style="--level: 43%"
+                      aria-hidden="true"
+                    ></span
+                    ><span>−12.4 dB</span>
+                  </div>
+                </div>
               </div>
-              <div class="audio-row">
-                <span>Alerts</span
-                ><span
-                  class="meter"
-                  style="--level: 55%"
-                  aria-hidden="true"
-                ></span
-                ><span>−9.3 dB</span>
+              <div class="terminal-command">
+                <code id="demo-command">$ obsctl scene Gameplay</code
+                ><span class="cursor" aria-hidden="true"></span>
               </div>
+              <p class="sr-only" id="demo-status" role="status">
+                Preview scene: Gameplay. This demo does not connect to OBS.
+              </p>
             </div>
+            <p class="demo-note">
+              Try the scene buttons. No OBS connection needed.
+            </p>
           </div>
-          <div class="terminal-command">
-            <code id="demo-command">$ obsctl scene Gameplay</code
-            ><span class="cursor" aria-hidden="true"></span>
-          </div>
-          <p class="sr-only" id="demo-status" role="status">
-            Preview scene: Gameplay. This demo does not connect to OBS.
-          </p>
         </div>
       </section>
       <div class="facts">
         <div class="wrap facts-inner">
-          <div><strong>08</strong><span>independent tools</span></div>
-          <div><strong>04</strong><span>languages</span></div>
-          <div><strong>01</strong><span>connected workflow</span></div>
+          <p><strong>Eight tools.</strong> Built to work your way.</p>
+          <span>Free &amp; open source</span><span>MIT licensed</span
+          ><a href="https://github.com/worxbend"
+            >Made by worxbend
+            <svg class="icon" aria-hidden="true"><use href="#external" /></svg
+          ></a>
         </div>
       </div>
+
+      <section class="wrap spotlight section" aria-labelledby="spotlight-title">
+        <div class="spotlight-copy">
+          <p class="section-kicker">Meet SceneDeck for Android</p>
+          <h2 id="spotlight-title">
+            Your spare screen.<br />Your control room.
+          </h2>
+          <p>
+            Give your phone a place in the setup. Switch scenes, mix audio and
+            check stream health without reaching for another window.
+          </p>
+          <a class="button secondary" href="#tool-scenedeck-android"
+            >Explore the Android remote
+            <svg class="icon" aria-hidden="true"><use href="#arrow" /></svg
+          ></a>
+          <div class="spotlight-specs">
+            <span>Android 9+</span><span>OBS 28+</span
+            ><span>Phone &amp; tablet</span>
+          </div>
+        </div>
+        <div class="spotlight-visual">
+          <span class="device-ring" aria-hidden="true"></span
+          ><img
+            src="assets/scenedeck-android/scenes-preview.webp"
+            alt="SceneDeck Android scene grid with preview tiles and stream controls"
+            width="1078"
+            height="2399"
+            loading="lazy"
+            decoding="async"
+          />
+          <div class="device-caption">
+            <span class="signal-dot" aria-hidden="true"></span> Real app. Real
+            control.<small>Connect over your local network.</small>
+          </div>
+        </div>
+      </section>
 
       <section
         class="wrap setup section"
@@ -221,10 +287,7 @@
         aria-labelledby="setup-title"
       >
         <div class="section-heading">
-          <h2 id="setup-title">
-            Your devices.<br />
-            One flow.
-          </h2>
+          <h2 id="setup-title">A place for every tool.</h2>
           <p>
             Keep the encoding on your rig. Keep the controls at your fingertips.
             OBS WebSocket keeps your controls connected.
@@ -404,10 +467,7 @@
         aria-labelledby="tools-title"
       >
         <div class="section-heading">
-          <h2 id="tools-title">
-            Small tools.<br />
-            Full control.
-          </h2>
+          <h2 id="tools-title">Build your own setup.</h2>
           <p>
             Each tool does one job well. Take the whole toolkit, or just the
             piece your setup is missing.
@@ -434,7 +494,7 @@
           <span id="tool-count" class="overline" role="status">8 tools</span>
         </div>
         <div class="directory-labels" aria-hidden="true">
-          <span>#</span><span>Tool / purpose</span><span>Language</span
+          <span></span><span>Tool / purpose</span><span>Language</span
           ><span>Installation</span>
         </div>
         <div id="tool-grid">
@@ -446,7 +506,10 @@
           >
             <details class="tool-details">
               <summary>
-                <span class="tool-number">01</span
+                <span class="tool-number" aria-hidden="true"
+                  ><svg class="icon" viewBox="0 0 24 24">
+                    <rect x="3" y="4" width="18" height="13" rx="2" />
+                    <path d="M8 21h8m-4-4v4" /></svg></span
                 ><span class="tool-heading"
                   ><span class="tool-name" role="heading" aria-level="3"
                     >SceneDeck</span
@@ -479,7 +542,11 @@
           >
             <details class="tool-details">
               <summary>
-                <span class="tool-number">02</span>
+                <span class="tool-number" aria-hidden="true"
+                  ><svg class="icon" viewBox="0 0 24 24">
+                    <rect x="6" y="2" width="12" height="20" rx="3" />
+                    <path d="M10 18h4" /></svg
+                ></span>
                 <span class="tool-heading">
                   <span class="tool-name" role="heading" aria-level="3"
                     >SceneDeck Android</span
@@ -740,7 +807,9 @@
           >
             <details class="tool-details">
               <summary>
-                <span class="tool-number">03</span
+                <span class="tool-number" aria-hidden="true"
+                  ><svg class="icon" viewBox="0 0 24 24">
+                    <path d="m5 6 6 6-6 6m8 0h6" /></svg></span
                 ><span class="tool-heading"
                   ><span class="tool-name" role="heading" aria-level="3"
                     >obsctl-rs</span
@@ -773,7 +842,9 @@
           >
             <details class="tool-details">
               <summary>
-                <span class="tool-number">04</span
+                <span class="tool-number" aria-hidden="true"
+                  ><svg class="icon" viewBox="0 0 24 24">
+                    <path d="m5 6 6 6-6 6m8 0h6" /></svg></span
                 ><span class="tool-heading"
                   ><span class="tool-name" role="heading" aria-level="3"
                     >obsctl</span
@@ -806,7 +877,9 @@
           >
             <details class="tool-details">
               <summary>
-                <span class="tool-number">05</span
+                <span class="tool-number" aria-hidden="true"
+                  ><svg class="icon" viewBox="0 0 24 24">
+                    <path d="M3 18V6m0 12h18M6 14l4-5 4 3 6-7" /></svg></span
                 ><span class="tool-heading"
                   ><span class="tool-name" role="heading" aria-level="3"
                     >obs-stats</span
@@ -839,7 +912,10 @@
           >
             <details class="tool-details">
               <summary>
-                <span class="tool-number">06</span
+                <span class="tool-number" aria-hidden="true"
+                  ><svg class="icon" viewBox="0 0 24 24">
+                    <path d="M4 4h16v12H9l-5 4V4Z" />
+                    <path d="M8 8h8m-8 4h5" /></svg></span
                 ><span class="tool-heading"
                   ><span class="tool-name" role="heading" aria-level="3"
                     >twi</span
@@ -872,7 +948,10 @@
           >
             <details class="tool-details">
               <summary>
-                <span class="tool-number">07</span
+                <span class="tool-number" aria-hidden="true"
+                  ><svg class="icon" viewBox="0 0 24 24">
+                    <rect x="2" y="5" width="20" height="14" rx="4" />
+                    <path d="m10 9 5 3-5 3V9Z" /></svg></span
                 ><span class="tool-heading"
                   ><span class="tool-name" role="heading" aria-level="3"
                     >yc</span
@@ -905,7 +984,12 @@
           >
             <details class="tool-details">
               <summary>
-                <span class="tool-number">08</span
+                <span class="tool-number" aria-hidden="true"
+                  ><svg class="icon" viewBox="0 0 24 24">
+                    <circle cx="5" cy="12" r="2" />
+                    <circle cx="19" cy="5" r="2" />
+                    <circle cx="19" cy="19" r="2" />
+                    <path d="m7 11 10-5M7 13l10 5" /></svg></span
                 ><span class="tool-heading"
                   ><span class="tool-name" role="heading" aria-level="3"
                     >multistream-manager</span

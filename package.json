@@ -1,6 +1,6 @@
 {
   "name": "streaming-tools-site",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "description": "A static directory of open-source streaming tools by worxbend.",
   "type": "module",

@@ -289,7 +289,7 @@ test("blocked clipboard selects the command and explains manual copying", async 
 
 test("scene preview supports keyboard selection", async ({ page }) => {
   await page.goto("/");
-  const scenes = page.locator("[data-scene]");
+  const scenes = page.locator("button[data-scene]");
   await scenes.first().focus();
   await page.keyboard.press("ArrowRight");
   const selected = scenes.nth(1);

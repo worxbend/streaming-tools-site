@@ -231,7 +231,7 @@
     if (anchor && anchor.hash === window.location.hash) revealHash();
   });
 
-  const scenes = all("[data-scene]");
+  const scenes = all("button[data-scene]");
   function selectScene(name) {
     if (!scenes.some((button) => button.dataset.scene === name)) return;
     scenes.forEach((button) =>
@@ -241,6 +241,9 @@
       ),
     );
     setText("#demo-command", "$ obsctl scene " + name);
+    setText("#preview-scene", name);
+    const stage = query(".signal-stage");
+    if (stage) stage.dataset.scene = name;
     setText(
       "#demo-status",
       "Preview scene: " + name + ". This demo does not connect to OBS.",

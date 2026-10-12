@@ -74,6 +74,10 @@ Netlify can also use the included `netlify.toml`: it builds and publishes the sa
 
 ## Design and accessibility
 
-The design uses a broadcast-control-room palette, an interactive connection diagram, a filterable editorial directory and a keyboard-operable terminal preview. Light/dark preference is local to the browser. Content remains visible without animation; reduced-motion preferences disable smooth scrolling and transitions. The site makes no analytics, tracking, CDN or API requests at runtime.
+The “signal studio” identity pairs oversized Inter typography with a lavender hero, deep violet surfaces and signal-yellow controls. A looped patch cable and scene-responsive orbit connect the visual language to broadcasting equipment. The Android spotlight uses a small, locally generated WebP preview; the installation guide retains full-resolution screenshots. Purpose-specific line icons distinguish tools without arbitrary numbering.
+
+Shared semantic tokens in `assets/styles.css` define both themes, spacing, surfaces, radii and motion. The privacy page uses the same header, controls and persistent theme, with a separate reading-column layout. Light/dark preference is local to the browser. Content remains visible without animation; reduced-motion preferences disable smooth scrolling and transitions. The site makes no analytics, tracking, CDN or API requests at runtime.
+
+Design reference: [Teenage Engineering’s field system](https://teenage.engineering/products/field-system), for tactile controls and independent devices that work together, rather than its branding or assets. No reference-site assets are used.
 
 Font licenses are included beside the font files. OBS Studio and Twitch SVG marks are sourced from [Simple Icons](https://github.com/simple-icons/simple-icons) (CC0 collection); the marks belong to their respective owners. The toolkit projects carry their own MIT licenses.
